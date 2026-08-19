@@ -40,7 +40,8 @@ public class AuthAPI {
     private UserDetailsService userDetailsService;
 
     private static final Integer ROLE_ADMIN_ID = 1;
-    private static final Integer ROLE_USER_ID = 2;
+    private static final Integer ROLE_MODERATOR_ID = 2;
+    private static final Integer ROLE_USER_ID = 3;
     private static final String TOKEN_TYPE = "Bearer";
 
     @PostMapping("/register")
