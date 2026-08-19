@@ -24,11 +24,11 @@ public class Season {
     private UUID contentId;
 
     @Column(name = "season_number")
-    private int seasonNumber;
+    private Integer seasonNumber;
 
     @Column(name = "title")
     private String title;
 
     @Column(name = "description")
-    private String text;
+    private String description;
 }

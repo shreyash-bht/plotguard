@@ -29,6 +29,7 @@ public class StoryUnit {
     private UUID seasonId;
 
     @Column(name = "unit_type")
+    @Enumerated(EnumType.STRING)
     private StoryUnitType storyUnitType;
 
     @Column(name = "unit_number")
@@ -41,7 +42,7 @@ public class StoryUnit {
     private String description;
 
     @Column(name = "story_order")
-    private int storyOrder;
+    private Integer storyOrder;
 
     @Column(name = "release_date")
     private LocalDate releaseDate;
