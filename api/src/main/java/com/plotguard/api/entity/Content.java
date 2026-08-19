@@ -29,6 +29,7 @@ public class Content {
     private String description;
 
     @Column(name = "content_type")
+    @Enumerated(EnumType.STRING)
     private ContentType contentType;
 
     @Column(name = "release_date")
