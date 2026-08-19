@@ -10,6 +10,7 @@ ON CONFLICT (username) DO NOTHING;
 INSERT INTO user_roles (user_id, role_id)
 SELECT u.user_id, r.role_id
 FROM users u
-JOIN roles r ON r.role_name = 'ROLE_ADMIN'
+         JOIN roles r
+              ON r.role_name IN ('ROLE_ADMIN', 'ROLE_MODERATOR')
 WHERE u.username = 'admin'
 ON CONFLICT (user_id, role_id) DO NOTHING;
