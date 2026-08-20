@@ -22,8 +22,7 @@ public class StoryUnitApiService {
     public StoryUnit addStoryUnitToContent(UUID contentId, NewStoryUnitDto newStoryUnitDto) throws InvalidAttributesException {
         if(!contentId.equals(newStoryUnitDto.getContentId()))
             throw new InvalidAttributesException("Content Ids don't match");
-        int nextOrder = storyUnitRepository.findMaxStoryOrderByContentId(contentId)
-                .orElse(0) + 1;
+        int nextStoryOrder = storyUnitRepository.findMaxStoryOrderByContentId(contentId).orElse(0) + 1;
         StoryUnit newStoryUnit = StoryUnit.builder()
                 .contentId(contentId)
                 .seasonId(newStoryUnitDto.getSeasonId())
@@ -31,7 +30,7 @@ public class StoryUnitApiService {
                 .unitNumber(newStoryUnitDto.getUnitNumber())
                 .title(newStoryUnitDto.getTitle())
                 .description(newStoryUnitDto.getDescription())
-                .storyOrder(nextOrder)
+                .storyOrder(nextStoryOrder)
                 .releaseDate(newStoryUnitDto.getReleaseDate())
                 .build();
         return storyUnitRepository.save(newStoryUnit);
