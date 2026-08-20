@@ -20,7 +20,7 @@ public class SeasonApiService {
     }
 
     public Season addSeasonToContent(UUID contentId, NewSeasonDto newSeasonDto) throws InvalidAttributesException {
-        if(contentId.equals(newSeasonDto.getContentId()))
+        if(! contentId.equals(newSeasonDto.getContentId()))
             throw new InvalidAttributesException("Content IDs mismatched");
         Season newSeason = Season.builder()
                 .contentId(contentId)

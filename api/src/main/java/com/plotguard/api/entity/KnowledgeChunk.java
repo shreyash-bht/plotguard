@@ -9,39 +9,37 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
 @Entity
-@Table(name= "contents")
+@Table(name= "knowledge_chunks")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Content {
+public class KnowledgeChunk {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name= "content_id")
-    private UUID contentId;
+    @Column(name= "chunk_id")
+    private UUID chunkId;
 
-    @Column(name = "title")
-    private String title;
+    @Column(name = "story_unit_id")
+    private UUID storyUnitId;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "chunk_index")
+    private Integer chunkIndex;
 
-    @Column(name = "content_type")
-    @Enumerated(EnumType.STRING)
-    private ContentType contentType;
+    @Column(name = "chunk_text")
+    private String chunkText;
 
-    @Column(name = "release_date")
-    private LocalDate releaseDate;
+    @Column(name = "token_count")
+    private Integer tokenCount;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "createdAt", nullable = false, updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updatedAt", nullable = false)
     private Instant updatedAt;
 }
