@@ -27,9 +27,6 @@ public class NewKnowledgeChunkDto {
     @NonNull
     private String chunkText;
 
-    @JsonProperty("token_count")
-    private Integer tokenCount;
-
     @JsonProperty("created_at")
     private Instant createdAt;
 

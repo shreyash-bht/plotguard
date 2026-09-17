@@ -34,7 +34,6 @@ public class KnowledgeChunkApiService {
                 .storyUnitId(storyUnitId)
                 .chunkIndex(nextChunkIndex)
                 .chunkText(dto.getChunkText())
-                .tokenCount(dto.getTokenCount())
                 .build();
         return knowledgeChunkRepository.save(chunk);
     }
