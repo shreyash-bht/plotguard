@@ -35,11 +35,19 @@ public class KnowledgeChunk {
     @Column(name = "token_count")
     private Integer tokenCount;
 
+    @Column(name = "embedding")
+    private float[] embedding;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "embedding_status", nullable = false)
+    @Builder.Default
+    private EmbeddingStatus embeddingStatus = EmbeddingStatus.PENDING;
+
     @CreationTimestamp
-    @Column(name = "createdAt", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updatedAt", nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 }
