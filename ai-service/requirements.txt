@@ -1,0 +1,9 @@
+langchain-ollama
+psycopg[binary]
+dotenv
+apscheduler
+
+langchain-text-splitters
+transformers
+
+fastapi[standard]
