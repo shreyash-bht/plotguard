@@ -24,7 +24,7 @@ ingestion_service = container.get_ingestion_service()
 chunking_repository = ChunkingRepository()
 retrieval_service = container.get_retrieval_service()
 embedding_service = container.get_embedding_service()
-chat_loader = container.get_chat_loader()
+chat_repository = container.get_chat_repository()
 
 chatbot_service = container.get_chatbot_service()
 
@@ -76,7 +76,7 @@ def get_relevant_chunks(request: ChunkRequest):
 
 @app.post("/api/conversations")
 def create_conversation(request: ConversationRequest):
-    response = chat_loader.create_conversation(request.user_id, request.content_id, request.max_story_order)
+    response = chat_repository.create_conversation(request.user_id, request.content_id, request.max_story_order)
     return response
 
 

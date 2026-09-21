@@ -6,7 +6,7 @@ from app.rag_service import RAGService
 from app.ingestion.ingestion_service import IngestionService
 from app.chunking.chunking_repository import ChunkingRepository
 from app.chunking.chunking_service import ChunkingService
-from app.chat.chat_loader import PostgresChatLoader
+from app.chat.chat_repository import PostgresChatRepository
 from app.chat.chatbot_service import ChatbotService
 from app.context.query_contextualizer import QueryContextualizer
 
@@ -23,9 +23,9 @@ class ServiceContainer:
         self.__retrieval_service = RetrievalService()
         self.__rag_service = RAGService(self.__embedding_service, self.__retrieval_service)
         self.__ingestion_service = IngestionService(ChunkingRepository(), ChunkingService())
-        self.__chat_loader = PostgresChatLoader()
+        self.__chat_repository = PostgresChatRepository()
         self.__query_contextualizer = QueryContextualizer()
-        self.__chatbot_service = ChatbotService(self.__query_contextualizer, self.__rag_service, self.__llm_service, self.__chat_loader)
+        self.__chatbot_service = ChatbotService(self.__query_contextualizer, self.__rag_service, self.__llm_service, self.__chat_repository)
 
     @classmethod
     def get_service_container(cls):
@@ -51,8 +51,8 @@ class ServiceContainer:
     def get_ingestion_service(self):
         return self.__ingestion_service
 
-    def get_chat_loader(self):
-        return self.__chat_loader    
+    def get_chat_repository(self):
+        return self.__chat_repository    
 
     def get_chatbot_service(self):
         return self.__chatbot_service
