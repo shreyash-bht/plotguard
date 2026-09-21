@@ -1,4 +1,4 @@
 from pydantic import BaseModel
 
-class RAGResponse(BaseModel):
+class ChatResponse(BaseModel):
     answer: str

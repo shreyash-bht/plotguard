@@ -5,20 +5,29 @@ from pydantic import BaseModel
 from app.embedding.scheduler import EmbeddingScheduler
 from app.schema.story_unit_ingestion_request import StoryUnitIngestionRequest
 from app.schema.story_unit_ingestion_response import StoryUnitIngestionResponse
-from app.ingestion.ingestion_service import IngestinoService
 from app.chunking.chunking_repository import ChunkingRepository
 from app.retrieval.retrieval_service import RetrievalService
 from app.embedding.embedding_service import EmbeddingService
 from app.rag_service import RAGService
-from app.schema.rag_request import RAGRequest
-from app.schema.rag_response import RAGResponse
+from app.schema.chat_request import ChatRequest
+from app.schema.chat_response import ChatResponse
+from app.schema.conversations_request import ConversationRequest
+from app.schema.conversations_response import ConversationResponse
+
+
+from app.container.service_container import ServiceContainer
+
+container = ServiceContainer.get_service_container()
 
 embedding_scheduler = EmbeddingScheduler()
-ingestion_service = IngestinoService()
+ingestion_service = container.get_ingestion_service()
 chunking_repository = ChunkingRepository()
-retrieval_service = RetrievalService()
-embedding_service = EmbeddingService()
-rag_service = RAGService()
+retrieval_service = container.get_retrieval_service()
+embedding_service = container.get_embedding_service()
+chat_loader = container.get_chat_loader()
+
+chatbot_service = container.get_chatbot_service()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -65,12 +74,19 @@ def get_relevant_chunks(request: ChunkRequest):
     )
 
 
-@app.post("/api/rag/answer", response_model=RAGResponse)
-def answer(request: RAGRequest):
-    response = rag_service.answer(
-        content_id=request.content_id,
-        max_story_order=request.max_story_order,
-        question=request.question,
-        top_k=5
+@app.post("/api/conversations")
+def create_conversation(request: ConversationRequest):
+    response = chat_loader.create_conversation(request.user_id, request.content_id, request.max_story_order)
+    return response
+
+
+@app.post("/api/chat")
+def chat(request: ChatRequest):
+    response = chatbot_service.chat(
+        request.conversation_id,
+        request.content_id,
+        request.max_story_order,
+        request.user_question
     )
-    return RAGResponse(answer=response[0]['text'])
+
+    return ChatResponse(answer=response)

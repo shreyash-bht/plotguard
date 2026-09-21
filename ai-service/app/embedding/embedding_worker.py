@@ -2,11 +2,14 @@ import psycopg
 
 from app.config import DATABASE_URL
 from app.embedding.embedding_service import EmbeddingService
+from app.container.service_container import ServiceContainer
 
+
+service_container = ServiceContainer.get_service_container()
 
 class EmbeddingWorker:
     def __init__(self):
-        self.embedding_service = EmbeddingService()
+        self.embedding_service = service_container.get_embedding_service()
         self.connection_string = DATABASE_URL
 
     def process(self,batch_size: int = 20):
