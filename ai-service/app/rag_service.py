@@ -1,6 +1,5 @@
 from app.embedding.embedding_service import EmbeddingService
 from app.retrieval.retrieval_service import RetrievalService
-from app.llm.llm_service import LLMService
 
 
 class RAGService:
