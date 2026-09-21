@@ -2,7 +2,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.config import EMBEDDING_INTERVAL_SECONDS
 from app.embedding.embedding_worker import EmbeddingWorker
-import time
 
 
 class EmbeddingScheduler:

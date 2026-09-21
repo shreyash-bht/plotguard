@@ -1,7 +1,19 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
-
+from langchain_core.messages.utils import convert_to_messages
 from app.config import GEMINI_API_KEY, LLM_MODEL
 
+
+SYSTEM_PROMPT_TEMPLATE = """
+You are a PlotGuard, a spoiler-safe anime question-answering friendly chatbot.
+You will be provided limited context till which the viewer have made progress watching the anime.
+
+1. Do not use outside knowledge
+2. Do not invent or assume facts that are not present in the context.
+3. Do not reveal information beyond the provided context.
+4. If the context does not ccontain enough information to answer the question, clearly say that there is not enough information available. 
+Keep the answer concise and clear.
+Retrieved facts : {context}
+"""
 
 class LLMService:
     def __init__(self):
@@ -14,28 +26,18 @@ class LLMService:
         self.llm = ChatGoogleGenerativeAI(
             model=LLM_MODEL,
             google_api_key=GEMINI_API_KEY,
-            temperature=0.2
+            max_tokens=2000
         )
 
-    def answer(self, question: str, context: str) -> str:
-        prompt = f"""
-You are PlotGuard, a spoiler-safe anime question-answering friendly chatbot.
-You will be provided limited context till which the viewer have made progress watching the anime. 
-Rules:
-- Do not use outside knowledge.
-- Do not invent or assume facts that are not present in the context.
-- Do not reveal information beyond the provided context.
-- If the context does not contain enough information to answer the question,
-  clearly say that there is not enough information available.
-- Keep the answer concise and clear.
+        
+    def chat(self, question: str, facts: str, chat_history: list[dict]) -> str:
+        system_msg = ("system", SYSTEM_PROMPT_TEMPLATE.format(context=facts))
+        history_msgs = convert_to_messages(chat_history)
+        current_msg = ("human", question)
+        messages = [system_msg, *history_msgs, current_msg]
 
-Context:
-{context}
+        response = self.llm.invoke(messages)
 
-Question:
-{question}
+        ai_response = response.content[0]['text']
 
-Answer:
-"""
-        response = self.llm.invoke(prompt)
-        return response.content
+        return ai_response

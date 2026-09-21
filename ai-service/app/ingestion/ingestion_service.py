@@ -4,10 +4,10 @@ from app.schema.story_unit_ingestion_response import StoryUnitIngestionResponse
 from app.chunking.chunking_repository import ChunkingRepository
 from app.chunking.chunking_service import ChunkingService
 
-class IngestinoService:
-    def __init__(self):
-        self.__chunking_repository = ChunkingRepository()
-        self.__chunking_service = ChunkingService()
+class IngestionService:
+    def __init__(self, chunking_repository, chunking_service):
+        self.__chunking_repository = chunking_repository
+        self.__chunking_service = chunking_service
         
     def ingest(self, story_unit_data: StoryUnitIngestionRequest) -> StoryUnitIngestionResponse:
         splitted_chunks = self.__chunking_service.split(story_unit_data.story_unit_text)
