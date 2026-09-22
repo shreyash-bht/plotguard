@@ -1,6 +1,6 @@
 from app.context.query_contextualizer import QueryContextualizer
 from app.llm.llm_service import LLMService
-from app.rag_service import RAGService
+from app.rag.rag_service import RAGService
 from app.chat.chat_repository import PostgresChatRepository, ChatMessage
 
 class ChatbotService:

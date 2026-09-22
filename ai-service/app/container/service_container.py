@@ -2,7 +2,7 @@ import threading
 from app.embedding.embedding_service import EmbeddingService
 from app.llm.llm_service import LLMService
 from app.retrieval.retrieval_service import RetrievalService
-from app.rag_service import RAGService
+from app.rag.rag_service import RAGService
 from app.ingestion.ingestion_service import IngestionService
 from app.chunking.chunking_repository import ChunkingRepository
 from app.chunking.chunking_service import ChunkingService

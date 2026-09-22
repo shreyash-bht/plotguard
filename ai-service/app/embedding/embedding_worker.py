@@ -1,6 +1,6 @@
 import psycopg
 
-from app.config import DATABASE_URL
+from app.config.config import DATABASE_URL
 from app.embedding.embedding_service import EmbeddingService
 from app.container.service_container import ServiceContainer
 
