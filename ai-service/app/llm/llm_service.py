@@ -1,6 +1,6 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages.utils import convert_to_messages
-from app.config import GEMINI_API_KEY, LLM_MODEL
+from app.config.config import GEMINI_API_KEY, GEMINI_LLM_MODEL
 
 
 SYSTEM_PROMPT_TEMPLATE = """
@@ -12,6 +12,7 @@ You will be provided limited context till which the viewer have made progress wa
 3. Do not reveal information beyond the provided context.
 4. If the context does not ccontain enough information to answer the question, clearly say that there is not enough information available. 
 Keep the answer concise and clear.
+5. Only Answer the latest query asked by the user. 
 Retrieved facts : {context}
 """
 
@@ -20,11 +21,11 @@ class LLMService:
         if not GEMINI_API_KEY:
             raise ValueError("GEMINI_API_KEY is not configured")
 
-        if not LLM_MODEL:
+        if not GEMINI_LLM_MODEL:
             raise ValueError("LLM_MODEL is not configured")
 
         self.llm = ChatGoogleGenerativeAI(
-            model=LLM_MODEL,
+            model=GEMINI_LLM_MODEL,
             google_api_key=GEMINI_API_KEY,
             max_tokens=2000
         )

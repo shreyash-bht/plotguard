@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import psycopg
-from app.config import DATABASE_URL
+from app.config.config import DATABASE_URL
 
 
 @dataclass

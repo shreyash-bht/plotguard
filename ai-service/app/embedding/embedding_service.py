@@ -1,5 +1,5 @@
 from langchain_ollama.embeddings import OllamaEmbeddings
-from app.config import EMBEDDING_MODEL
+from app.config.config import EMBEDDING_MODEL
 
 class EmbeddingService:
     def __init__(self):

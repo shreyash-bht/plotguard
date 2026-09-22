@@ -5,7 +5,7 @@ from app.chunking.chunking_repository import ChunkingRepository
 from app.chunking.chunking_service import ChunkingService
 
 class IngestionService:
-    def __init__(self, chunking_repository, chunking_service):
+    def __init__(self, chunking_repository: ChunkingRepository, chunking_service: ChunkingService):
         self.__chunking_repository = chunking_repository
         self.__chunking_service = chunking_service
         

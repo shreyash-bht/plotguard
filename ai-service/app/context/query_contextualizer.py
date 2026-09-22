@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from langchain_ollama import ChatOllama
 
-from app.config import OLLAMA_BASE_URL
+from app.config.config import OLLAMA_BASE_URL, QWEN_LLM_MODEL
 
 
 class ContextualizedQuery(BaseModel):
@@ -25,6 +25,7 @@ IMPORTANT:
 - Do NOT add facts.
 - Do NOT infer facts that are not present in the conversation.
 - Preserve the user's original intent.
+- Prefer the most recent relevant topic.
 - Resolve pronouns and ambiguous references using the conversation.
 - If the question is already standalone, keep it essentially unchanged.
 - The output must be suitable for semantic vector retrieval.
@@ -75,10 +76,9 @@ Latest user question:
 
 
 class QueryContextualizer:
-
     def __init__(self):
         self.llm = ChatOllama(
-            model="qwen2.5:1.5b",
+            model=QWEN_LLM_MODEL ,
             base_url=OLLAMA_BASE_URL,
             temperature=0,
         )
