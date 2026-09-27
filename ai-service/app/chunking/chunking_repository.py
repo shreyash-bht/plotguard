@@ -1,13 +1,14 @@
 import psycopg
 
-from app.config.config import DATABASE_URL
-
 
 class ChunkingRepository:
+    def __init__(self, database_url: str):
+        self._database_url = database_url
+
     def save_chunks(self, story_unit_id: str, chunks: list[str]) -> int:
         if not chunks:
             return 0
-        with psycopg.connect(DATABASE_URL) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 for chunk_index, chunk_text in enumerate(chunks):
                     cursor.execute(

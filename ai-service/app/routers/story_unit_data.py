@@ -4,11 +4,13 @@ from app.ingestion.ingestion_service import IngestionService
 from app.chunking.chunking_repository import ChunkingRepository
 from app.schema.story_unit_ingestion_request import StoryUnitIngestionRequest
 from app.schema.story_unit_ingestion_response import StoryUnitIngestionResponse
+from app.config.config import get_settings
 
+settings = get_settings()
+container = ServiceContainer.get_service_container(settings)
 
-container = ServiceContainer.get_service_container()
 ingestion_service: IngestionService = container.get_ingestion_service()
-chunking_repository = ChunkingRepository()
+chunking_repository = ChunkingRepository(settings.database_url)
 
 
 router = APIRouter(prefix="/story-unit-data")

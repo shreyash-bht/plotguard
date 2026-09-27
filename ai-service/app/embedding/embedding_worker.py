@@ -1,16 +1,12 @@
 import psycopg
 
-from app.config.config import DATABASE_URL
 from app.embedding.embedding_service import EmbeddingService
-from app.container.service_container import ServiceContainer
 
-
-service_container = ServiceContainer.get_service_container()
 
 class EmbeddingWorker:
-    def __init__(self):
-        self.embedding_service = service_container.get_embedding_service()
-        self.connection_string = DATABASE_URL
+    def __init__(self, database_url: str, embedding_service: EmbeddingService):
+        self._database_url = database_url
+        self.embedding_service = embedding_service
 
     def process(self,batch_size: int = 20):
         chunks = self._get_pending_chunks(batch_size)
@@ -36,7 +32,7 @@ class EmbeddingWorker:
             raise
 
     def _get_pending_chunks(self, batch_size: int):
-        with psycopg.connect(self.connection_string) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
@@ -54,7 +50,7 @@ class EmbeddingWorker:
                 return cursor.fetchall()
 
     def _mark_processing(self,chunk_ids):
-        with psycopg.connect(self.connection_string) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
@@ -66,7 +62,7 @@ class EmbeddingWorker:
                 )
 
     def _save_embeddings(self, chunks, embeddings):
-        with psycopg.connect(self.connection_string) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 for chunk, embedding in zip(
                     chunks,
@@ -87,7 +83,7 @@ class EmbeddingWorker:
                     )
 
     def _mark_failed(self, chunk_ids):
-        with psycopg.connect(self.connection_string) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """

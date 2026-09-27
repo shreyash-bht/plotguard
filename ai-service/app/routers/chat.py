@@ -4,9 +4,10 @@ from app.container.service_container import ServiceContainer
 from app.chat.chatbot_service import ChatbotService
 from app.schema.chat_request import ChatRequest
 from app.schema.chat_response import ChatResponse
+from app.config.config import get_settings
 
-
-container = ServiceContainer.get_service_container()
+settings = get_settings()
+container = ServiceContainer.get_service_container(settings)
 chatbot_service: ChatbotService = container.get_chatbot_service()
 
 router = APIRouter(prefix="/chat")

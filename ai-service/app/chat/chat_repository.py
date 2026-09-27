@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import psycopg
-from app.config.config import DATABASE_URL
 
 
 @dataclass
@@ -19,8 +18,8 @@ class Conversation:
 
 
 class PostgresChatRepository:
-    def __init__(self, connection_string: str = DATABASE_URL):
-        self.connection_string = connection_string
+    def __init__(self, database_url: str):
+        self._database_url = database_url
 
     def get_chat_history(
         self,
@@ -45,7 +44,7 @@ class PostgresChatRepository:
             ) recent
             ORDER BY created_at ASC
         """
-        with psycopg.connect(self.connection_string) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     query,
@@ -83,7 +82,7 @@ class PostgresChatRepository:
                 (%s, %s, %s, %s)
         """
 
-        with psycopg.connect(self.connection_string) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     query,
@@ -120,7 +119,7 @@ class PostgresChatRepository:
                 max_story_order
         """
 
-        with psycopg.connect(self.connection_string) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     query,

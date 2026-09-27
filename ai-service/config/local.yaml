@@ -1,0 +1,17 @@
+database:
+  url: ${DATABASE_URL:postgresql://postgres:admin@localhost:5432/postgres}
+
+ollama:
+  base_url: ${OLLAMA_BASE_URL:http://localhost:11434}
+
+embedding:
+  model: ${EMBEDDING_MODEL:qwen3-embedding:0.6B}
+  interval_seconds: ${EMBEDDING_INTERVAL_SECONDS:30}
+
+llm:
+  gemini:
+    model: ${LLM_MODEL:gemini-3.1-flash-lite}
+    api_key: ${GEMINI_API_KEY}
+
+  qwen:
+    model: ${QWEN_LLM_MODEL:qwen2.5:3b}

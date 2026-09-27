@@ -4,11 +4,14 @@ from fastapi import FastAPI
 from app.embedding.scheduler import EmbeddingScheduler
 from app.routers import chat, story_unit_data, test
 from app.container.service_container import ServiceContainer
+from app.config.config import get_settings
 
+settings = get_settings()
+container = ServiceContainer.get_service_container(settings)
 
-container = ServiceContainer.get_service_container()
+embedding_service = container.get_embedding_service()
+embedding_scheduler = EmbeddingScheduler(settings.database_url, embedding_service, settings.embedding_interval_seconds)
 
-embedding_scheduler = EmbeddingScheduler()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

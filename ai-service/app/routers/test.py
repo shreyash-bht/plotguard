@@ -9,12 +9,12 @@ from app.container.service_container import ServiceContainer
 from app.chat.chat_repository import PostgresChatRepository
 from app.schema.conversations_request import ConversationRequest
 from app.schema.conversations_response import ConversationResponse
-
+from app.config.config import get_settings
 
 router = APIRouter(prefix="/test")
 
-
-container = ServiceContainer.get_service_container()
+settings = get_settings()
+container = ServiceContainer.get_service_container(settings)
 chat_repository: PostgresChatRepository = container.get_chat_repository()
 
 

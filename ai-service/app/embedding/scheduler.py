@@ -1,19 +1,20 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from app.config.config import EMBEDDING_INTERVAL_SECONDS
 from app.embedding.embedding_worker import EmbeddingWorker
+from app.embedding.embedding_service import EmbeddingService
 
 
 class EmbeddingScheduler:
-    def __init__(self):
+    def __init__(self, database_string: str, embedding_service: EmbeddingService, embedding_interval_seconds):
         self.scheduler = BackgroundScheduler()
-        self.worker = EmbeddingWorker()
+        self.worker = EmbeddingWorker(database_string, embedding_service)
+        self._embedding_interval_seconds = embedding_interval_seconds
 
     def start(self):
         self.scheduler.add_job(
             self.worker.process,
             trigger="interval",
-            seconds=EMBEDDING_INTERVAL_SECONDS,
+            seconds=self._embedding_interval_seconds,
             id="embedding_job",
             max_instances=1,
             coalesce=True

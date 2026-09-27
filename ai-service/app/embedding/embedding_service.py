@@ -1,9 +1,8 @@
 from langchain_ollama.embeddings import OllamaEmbeddings
-from app.config.config import EMBEDDING_MODEL
 
 class EmbeddingService:
-    def __init__(self):
-        self.embedding = OllamaEmbeddings(model=EMBEDDING_MODEL)
+    def __init__(self, embedding_model: str):
+        self.embedding = OllamaEmbeddings(model=embedding_model)
 
     def embed_query(self, query: str) -> list[float]:
         return self.embedding.embed_query(query)
