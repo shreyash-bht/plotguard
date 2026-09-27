@@ -1,6 +1,5 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages.utils import convert_to_messages
-from app.config.config import GEMINI_API_KEY, GEMINI_LLM_MODEL
 
 
 SYSTEM_PROMPT_TEMPLATE = """
@@ -17,16 +16,13 @@ Retrieved facts : {context}
 """
 
 class LLMService:
-    def __init__(self):
-        if not GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY is not configured")
-
-        if not GEMINI_LLM_MODEL:
-            raise ValueError("LLM_MODEL is not configured")
+    def __init__(self, gemini_llm_model: str, gemini_api_key: str):
+        self._gemini_llm_model = gemini_llm_model
+        self._gemini_api_key = gemini_api_key
 
         self.llm = ChatGoogleGenerativeAI(
-            model=GEMINI_LLM_MODEL,
-            google_api_key=GEMINI_API_KEY,
+            model=self._gemini_llm_model,
+            google_api_key=self._gemini_api_key,
             max_tokens=2000
         )
 

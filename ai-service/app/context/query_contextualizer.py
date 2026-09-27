@@ -1,8 +1,6 @@
 from pydantic import BaseModel, Field
 from langchain_ollama import ChatOllama
 
-from app.config.config import OLLAMA_BASE_URL, QWEN_LLM_MODEL
-
 
 class ContextualizedQuery(BaseModel):
     query: str = Field(
@@ -76,10 +74,10 @@ Latest user question:
 
 
 class QueryContextualizer:
-    def __init__(self):
+    def __init__(self, qwen_llm_model, ollama_base_url):
         self.llm = ChatOllama(
-            model=QWEN_LLM_MODEL ,
-            base_url=OLLAMA_BASE_URL,
+            model=qwen_llm_model ,
+            base_url=ollama_base_url,
             temperature=0,
         )
 

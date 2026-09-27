@@ -9,30 +9,31 @@ from app.chunking.chunking_service import ChunkingService
 from app.chat.chat_repository import PostgresChatRepository
 from app.chat.chatbot_service import ChatbotService
 from app.context.query_contextualizer import QueryContextualizer
+from app.config.config import Settings
 
 class ServiceContainer:
     _instance = None
     _lock = threading.Lock()
 
-    def __init__(self):
+    def __init__(self, settings: Settings):
         if ServiceContainer._instance is not None:
             raise RuntimeError("Use ServiceContainer.get_service_container() instead")
 
-        self.__embedding_service = EmbeddingService()
-        self.__llm_service = LLMService()
-        self.__retrieval_service = RetrievalService()
+        self.__embedding_service = EmbeddingService(settings.embedding_model)
+        self.__llm_service = LLMService(settings.gemini_llm_model, settings.gemini_api_key)
+        self.__retrieval_service = RetrievalService(settings.database_url)
         self.__rag_service = RAGService(self.__embedding_service, self.__retrieval_service)
-        self.__ingestion_service = IngestionService(ChunkingRepository(), ChunkingService())
-        self.__chat_repository = PostgresChatRepository()
-        self.__query_contextualizer = QueryContextualizer()
+        self.__ingestion_service = IngestionService(ChunkingRepository(settings.database_url), ChunkingService())
+        self.__chat_repository = PostgresChatRepository(settings.database_url)
+        self.__query_contextualizer = QueryContextualizer(settings.qwen_llm_model, settings.ollama_base_url)
         self.__chatbot_service = ChatbotService(self.__query_contextualizer, self.__rag_service, self.__llm_service, self.__chat_repository)
 
     @classmethod
-    def get_service_container(cls):
+    def get_service_container(cls, settings: Settings):
         if cls._instance == None:
             with cls._lock:
                 if cls._instance is None:
-                    instance = ServiceContainer()
+                    instance = ServiceContainer(settings)
                     cls._instance = instance
         return cls._instance
 

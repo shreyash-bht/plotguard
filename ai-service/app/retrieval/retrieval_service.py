@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 import psycopg
-from app.config.config import DATABASE_URL
-
 
 @dataclass
 class RetrievedChunk:
@@ -12,6 +10,9 @@ class RetrievedChunk:
 
 
 class RetrievalService:
+    def __init__(self, database_url: str):
+        self._database_url = database_url
+
     def retrieve(
         self,
         content_id: str,
@@ -19,7 +20,7 @@ class RetrievalService:
         query_embedding: list[float],
         top_k: int = 5
     ) -> list[RetrievedChunk]:
-        with psycopg.connect(DATABASE_URL) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
