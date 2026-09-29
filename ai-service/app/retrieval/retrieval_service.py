@@ -4,6 +4,7 @@ import psycopg
 @dataclass
 class RetrievedChunk:
     chunk_id: str
+    chunk_index: int
     chunk_text: str
     story_order: int
     distance: float
@@ -26,6 +27,7 @@ class RetrievalService:
                     """
                     SELECT
                         kc.chunk_id,
+                        kc.chunk_index,
                         kc.chunk_text,
                         su.story_order,
                         kc.embedding <=> %s::vector AS distance
@@ -52,9 +54,10 @@ class RetrievalService:
         return [
             RetrievedChunk(
                 chunk_id=str(row[0]),
-                chunk_text=row[1],
-                story_order=row[2],
-                distance=row[3]
+                chunk_index=row[1],
+                chunk_text=row[2],
+                story_order=row[3],
+                distance=row[4]
             )
             for row in rows
         ]

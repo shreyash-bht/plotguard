@@ -2,8 +2,8 @@ import pandas as pd
 from pydantic import BaseModel
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-
+SCRIPT_DIR = Path(__file__).resolve().parent.parent
+print(SCRIPT_DIR)
 
 class Content(BaseModel):
     content_id: str
@@ -27,7 +27,6 @@ class StoryUnit(BaseModel):
     title: str
 
 
-
 def get_contents_data() -> list[Content]:
     df = pd.read_csv(f"{SCRIPT_DIR}/resources/contents.csv")
     contents = []
@@ -35,7 +34,6 @@ def get_contents_data() -> list[Content]:
         contents.append(
             Content(content_id=row[2], title=row[3], content_type=row[4])
         )
-    print(contents)
     return contents
 
 
@@ -46,7 +44,6 @@ def get_seasons_data() -> list[Season]:
         seasons.append(
             Season(season_id=row[2], content_id=row[3], season_number=row[4], title=row[5])
         )
-    print(seasons)
     return seasons
 
 
@@ -59,5 +56,3 @@ def get_story_units_data() -> list[StoryUnit]:
                       unit_type=row[7], title=row[8])
         )
     return story_units
-
-

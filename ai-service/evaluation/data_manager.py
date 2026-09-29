@@ -1,5 +1,5 @@
 import psycopg
-from evaluation import loader
+from evaluation.loaders import loader
 from app.embedding.embedding_worker import EmbeddingWorker
 from app.ingestion.ingestion_service import IngestionService
 from app.schema.story_unit_ingestion_request import StoryUnitIngestionRequest
