@@ -114,7 +114,7 @@ def _build_settings(config: dict) -> Settings:
 
         embedding_model=config["embedding"]["model"],
         embedding_interval_seconds=int(
-            config["embedding"]["interval_seconds"]
+            config["embedding"].get("interval_seconds", 0)
         ),
 
         gemini_llm_model=config["llm"]["gemini"]["model"],

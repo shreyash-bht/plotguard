@@ -1,0 +1,5 @@
+sr_no,id,query,relevant_episodes,relevant_chunks,max_story_order,content_id
+1,q001,What's Arin's mother name ?,e1,e1-c0 e1-c1 e2-c0,3,64d9e2cf-ff16-4823-a022-024e60710669
+2,q002,Who had built the gate ? ,e5 ,e5-c0,5,64d9e2cf-ff16-4823-a022-024e60710669
+3,q003,How did Mara know Arin went to the lighthouse,e2,e2-c0,3,64d9e2cf-ff16-4823-a022-024e60710669
+4,q004,What were the symbols on the key,e1,e1-c0,2,64d9e2cf-ff16-4823-a022-024e60710669
