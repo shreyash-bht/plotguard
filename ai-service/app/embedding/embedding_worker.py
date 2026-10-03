@@ -1,6 +1,10 @@
 import psycopg
+import logging
 
 from app.embedding.embedding_service import EmbeddingService
+
+
+logger = logging.getLogger("ai-app.embedding")
 
 
 class EmbeddingWorker:
@@ -11,7 +15,7 @@ class EmbeddingWorker:
     def process(self,batch_size: int = 20):
         chunks = self._get_pending_chunks(batch_size)
         if not chunks:
-            print("No pending chunks.")
+            logger.info("No pending chunks.")
             return
         chunk_ids = [
             chunk[0]
@@ -25,10 +29,10 @@ class EmbeddingWorker:
             ]
             embeddings = self.embedding_service.embed_texts(texts)
             self._save_embeddings(chunks,embeddings)
-            print(f"Embedded {len(chunks)} chunks.")
+            logger.info(f"Embedded {len(chunks)} chunks.")
         except Exception as e:
             self._mark_failed(chunk_ids)
-            print(f"Embedding failed: {e}")
+            logger.error(f"Embedding failed: {e}")
             raise
 
     def _get_pending_chunks(self, batch_size: int):

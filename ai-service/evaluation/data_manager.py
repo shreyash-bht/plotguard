@@ -6,9 +6,9 @@ from app.schema.story_unit_ingestion_request import StoryUnitIngestionRequest
 
 
 class DataManager:
-    def __init__(self, DATABASE_URL: str, embeddding_wroker: EmbeddingWorker, ingestion_service: IngestionService):
+    def __init__(self, DATABASE_URL: str, embedding_worker: EmbeddingWorker, ingestion_service: IngestionService):
         self._database_url = DATABASE_URL
-        self._embedding_worker = embeddding_wroker
+        self._embedding_worker = embedding_worker
         self._ingestion_service = ingestion_service
 
     def populate(self):
