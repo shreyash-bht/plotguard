@@ -1,7 +1,11 @@
+import logging
 from app.context.query_contextualizer import QueryContextualizer
 from app.llm.llm_service import LLMService
 from app.rag.rag_service import RAGService
 from app.chat.chat_repository import PostgresChatRepository, ChatMessage
+
+logger = logging.getLogger("ai-app.chatbot")
+
 
 class ChatbotService:
     def __init__(self, 
@@ -33,10 +37,9 @@ class ChatbotService:
     ) -> str:
         chat_history = self.chat_repository.get_chat_history(conversation_id)
         formatted_chat_history = self.format_history(chat_history)
-        print("formatted chat history is: ", formatted_chat_history)
         contextualised_user_question = self.query_contextualizer.contextualize(user_question, formatted_chat_history)
         # contextualised_user_question = user_question
-        print("context added query: ", contextualised_user_question)
+        logger.info("context added query : ", contextualised_user_question)
         relevant_facts = self.rag_service.fetch_relevant_chunks(
             content_id,
             max_story_order,
@@ -46,5 +49,4 @@ class ChatbotService:
         ai_response = self.llm_service.chat(contextualised_user_question, relevant_facts, formatted_chat_history)
 
         self.chat_repository.save_turn(conversation_id, user_question, contextualised_user_question, ai_response)
-
         return ai_response

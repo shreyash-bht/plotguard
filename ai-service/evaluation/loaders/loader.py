@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent.parent
-print(SCRIPT_DIR)
+
 
 class Content(BaseModel):
     content_id: str

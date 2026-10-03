@@ -1,10 +1,15 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+import logging
 
 from app.embedding.scheduler import EmbeddingScheduler
 from app.routers import chat, story_unit_data, test
 from app.container.service_container import ServiceContainer
 from app.config.config import get_settings
+from app.config.logging_config import configure_logging
+
+configure_logging()
+logger = logging.getLogger("ai-app")
 
 settings = get_settings()
 container = ServiceContainer.get_service_container(settings)
@@ -17,9 +22,9 @@ embedding_scheduler = EmbeddingScheduler(settings.database_url, embedding_servic
 async def lifespan(app: FastAPI):
     global embedding_scheduler
     embedding_scheduler.start()
-    print("PlotGuard AI service started.")
+    logger.info("PlotGuard AI service started.")
     yield
-    print("PlotGuard AI service stopped.")
+    logger.info("PlotGuard AI service stopped.")
 
 
 app = FastAPI(

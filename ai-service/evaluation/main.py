@@ -1,9 +1,14 @@
+import logging
 from app.container.service_container import ServiceContainer
 from app.embedding.embedding_worker import EmbeddingWorker
 from evaluation.data_manager import DataManager
 from app.config.config import get_settings
 from evaluation.evaluation_runner import EvaluationRunner
 from evaluation.evaluators.retrieval_evaluator import RetrievalEvaluator
+from app.config.logging_config import configure_logging
+
+configure_logging()
+logger = logging.getLogger("evaluator")
 
 
 def main():

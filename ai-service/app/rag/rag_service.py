@@ -14,7 +14,6 @@ class RAGService:
         question: str,
         top_k: int = 5
     ) -> str:
-        print(f"rag question asked is : {question}")
         query_embedding = self.embedding_service.embed_query(question)
         chunks = self.retrieval_service.retrieve(
             content_id=content_id,

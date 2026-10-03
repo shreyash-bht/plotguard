@@ -35,7 +35,7 @@ class ChunkingRepository:
         return len(chunks)
 
     def get_chunks(self, story_unit_id: str) -> list[str]:
-        with psycopg.connect(DATABASE_URL) as conn:
+        with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
