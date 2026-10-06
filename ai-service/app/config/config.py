@@ -27,10 +27,8 @@ class Settings:
     embedding_model: str
     embedding_interval_seconds: int
 
-    gemini_llm_model: str
-    gemini_api_key: str | None
-
-    qwen_llm_model: str
+    chat_llm: dict
+    contextualizer: dict
 
 
 _ENV_PATTERN = re.compile(
@@ -117,10 +115,8 @@ def _build_settings(config: dict) -> Settings:
             config["embedding"].get("interval_seconds", 0)
         ),
 
-        gemini_llm_model=config["llm"]["gemini"]["model"],
-        gemini_api_key=config["llm"]["gemini"].get("api_key"),
-
-        qwen_llm_model=config["llm"]["qwen"]["model"],
+        chat_llm=config["chat_llm"],
+        contextualizer=config["contextualizer"]
     )
 
 
