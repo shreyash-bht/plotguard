@@ -1,4 +1,4 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
+from abc import ABC, abstractmethod
 from langchain_core.messages.utils import convert_to_messages
 
 
@@ -15,26 +15,25 @@ Keep the answer concise and clear.
 Retrieved facts : {context}
 """
 
-class LLMService:
-    def __init__(self, gemini_llm_model: str, gemini_api_key: str):
-        self._gemini_llm_model = gemini_llm_model
-        self._gemini_api_key = gemini_api_key
 
-        self.llm = ChatGoogleGenerativeAI(
-            model=self._gemini_llm_model,
-            google_api_key=self._gemini_api_key,
-            max_tokens=2000
-        )
+class ChatModel(ABC):
+    def __init__(self):
+        pass
 
-        
     def chat(self, question: str, facts: str, chat_history: list[dict]) -> str:
         system_msg = ("system", SYSTEM_PROMPT_TEMPLATE.format(context=facts))
         history_msgs = convert_to_messages(chat_history)
         current_msg = ("human", question)
         messages = [system_msg, *history_msgs, current_msg]
 
-        response = self.llm.invoke(messages)
-
-        ai_response = response.content[0]['text']
+        ai_response = self.ask_llm(messages)
 
         return ai_response
+
+    @abstractmethod
+    def ask_llm(self, messages) -> str:
+        pass
+
+    @abstractmethod
+    def with_structured_output(self, prompt, output_schema):
+        pass

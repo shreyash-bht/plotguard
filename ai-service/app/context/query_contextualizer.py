@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
-from langchain_ollama import ChatOllama
-
+from app.llm.chat_model import ChatModel
 
 class ContextualizedQuery(BaseModel):
     query: str = Field(
@@ -43,13 +42,13 @@ What did Eren's mother think about Eren joining the Scouts?
 ---
 
 Conversation:
-User: Who is Mikasa?
+User: Who is Ryan?
 
 Latest question:
-Where does she live?
+Where does he live?
 
 Output:
-Where does Mikasa live?
+Where does Ryan live?
 
 ---
 
@@ -57,10 +56,10 @@ Conversation:
 User: Why did Eren want to join the Scouts?
 
 Latest question:
-Who is Levi?
+Who is Lester?
 
 Output:
-Who is Levi?
+Who is Lester?
 
 The conversation history is only used to resolve references.
 Do not use it to answer the question.
@@ -73,24 +72,15 @@ Latest user question:
 """
 
 
-class QueryContextualizer:
-    def __init__(self, qwen_llm_model, ollama_base_url):
-        self.llm = ChatOllama(
-            model=qwen_llm_model ,
-            base_url=ollama_base_url,
-            temperature=0,
-        )
-
-        self.structured_llm = self.llm.with_structured_output(
-            ContextualizedQuery
-        )
+class QueryContextualizer():
+    def __init__(self, chat_model: ChatModel):
+        self._chat_model = chat_model
+        self._structured_llm = self._chat_model.with_structured_output(ContextualizedQuery) 
 
     def contextualize(
         self,
         question: str,
-        conversation_history: list[dict[str, str]],
-    ) -> ContextualizedQuery:
-
+        conversation_history: list[dict[str, str]],) -> str:
         history = self._format_history(conversation_history)
 
         prompt = SYSTEM_PROMPT.format(
@@ -98,8 +88,9 @@ class QueryContextualizer:
             question=question,
         )
 
-        return self.structured_llm.invoke(prompt).query
-
+        response = self._structured_llm.invoke(prompt)
+        return response.query
+    
     def _format_history(
         self,
         conversation_history: list[dict[str, str]],

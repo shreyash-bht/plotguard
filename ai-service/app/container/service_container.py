@@ -1,6 +1,9 @@
 import threading
 from app.embedding.embedding_service import EmbeddingService
-from app.llm.llm_service import LLMService
+from app.llm.chat_model import ChatModel
+from app.llm.gemini_chat_model import GeminiChatModel
+from app.llm.ollama_chat_model import OllamaChatModel
+
 from app.retrieval.retrieval_service import RetrievalService
 from app.rag.rag_service import RAGService
 from app.ingestion.ingestion_service import IngestionService
@@ -20,13 +23,13 @@ class ServiceContainer:
             raise RuntimeError("Use ServiceContainer.get_service_container() instead")
 
         self.__embedding_service = EmbeddingService(settings.embedding_model)
-        self.__llm_service = LLMService(settings.gemini_llm_model, settings.gemini_api_key)
+        self.__chat_model = self._create_chat_model(settings)
         self.__retrieval_service = RetrievalService(settings.database_url)
         self.__rag_service = RAGService(self.__embedding_service, self.__retrieval_service)
         self.__ingestion_service = IngestionService(ChunkingRepository(settings.database_url), ChunkingService())
         self.__chat_repository = PostgresChatRepository(settings.database_url)
-        self.__query_contextualizer = QueryContextualizer(settings.qwen_llm_model, settings.ollama_base_url)
-        self.__chatbot_service = ChatbotService(self.__query_contextualizer, self.__rag_service, self.__llm_service, self.__chat_repository)
+        self.__query_contextualizer = QueryContextualizer(self._create_contextualizer_model(settings))
+        self.__chatbot_service = ChatbotService(self.__query_contextualizer, self.__rag_service, self.__chat_model, self.__chat_repository)
 
     @classmethod
     def get_service_container(cls, settings: Settings):
@@ -40,8 +43,8 @@ class ServiceContainer:
     def get_embedding_service(self):
         return self.__embedding_service
 
-    def get_llm_service(self):
-        return self.__llm_service
+    def get_chat_model(self):
+        return self.__chat_model
 
     def get_retrieval_service(self):
         return self.__retrieval_service
@@ -57,3 +60,17 @@ class ServiceContainer:
 
     def get_chatbot_service(self):
         return self.__chatbot_service
+
+    def _create_chat_model(self, settings: Settings):
+        chat_llm_config = settings.chat_llm
+        if chat_llm_config["provider"] == "gemini":
+            return GeminiChatModel(chat_llm_config["gemini"]["model"], chat_llm_config["gemini"]["api_key"])
+        else:
+            return OllamaChatModel(chat_llm_config["ollama"]["model"])
+
+    def _create_contextualizer_model(self, settings: Settings):
+        contextualizer_config = settings.contextualizer
+        if contextualizer_config["provider"] == "gemini":
+            return GeminiChatModel(contextualizer_config["gemini"]["model"], contextualizer_config["gemini"]["api_key"])
+        else:
+            return OllamaChatModel(contextualizer_config["ollama"]["model"])
