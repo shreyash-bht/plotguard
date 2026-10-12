@@ -14,11 +14,12 @@ router = APIRouter(prefix="/chat")
 
 @router.post("")
 def chat(request: ChatRequest) -> ChatResponse:
-    response = chatbot_service.chat(
+    ai_response, chat_metadata = chatbot_service.chat(
         request.conversation_id,
         request.content_id,
         request.max_story_order,
-        request.user_question
+        request.user_question,
+        request.is_send_metadata
     )
 
-    return ChatResponse(answer=response)
+    return ChatResponse(answer=ai_response, chat_metadata=chat_metadata)
