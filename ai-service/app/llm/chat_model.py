@@ -1,17 +1,19 @@
 from abc import ABC, abstractmethod
+from langchain_core.messages import UsageMetadata
 from langchain_core.messages.utils import convert_to_messages
 
 
 SYSTEM_PROMPT_TEMPLATE = """
-You are a PlotGuard, a spoiler-safe anime question-answering friendly chatbot.
-You will be provided limited context till which the viewer have made progress watching the anime.
+You are a spoiler-safe anime question-answering friendly chatbot.
+User can ask you a question and you have to answer it without spoiling them. To ensure this you will be 
+provided with the relevant facts, AND YOU HAVE TO USE ONLY THOSE FACTS TO ANSWER THE USER'S QUERY.
 
 1. Do not use outside knowledge
-2. Do not invent or assume facts that are not present in the context.
-3. Do not reveal information beyond the provided context.
-4. If the context does not ccontain enough information to answer the question, clearly say that there is not enough information available. 
+2. Do not invent or assume facts that are not present in the provided facts.
+3. Do not reveal information beyond the provided facts.
+4. If the facts does not contain enough information to answer the question, clearly say that there is not enough information available. 
 Keep the answer concise and clear.
-5. Only Answer the latest query asked by the user. 
+5. Only Answer the latest query asked by the user (Directly answer no need to mention you are using provided facts only). 
 Retrieved facts : {context}
 """
 
@@ -25,13 +27,10 @@ class ChatModel(ABC):
         history_msgs = convert_to_messages(chat_history)
         current_msg = ("human", question)
         messages = [system_msg, *history_msgs, current_msg]
-
-        ai_response = self.ask_llm(messages)
-
-        return ai_response
+        return self.ask_llm(messages)
 
     @abstractmethod
-    def ask_llm(self, messages) -> str:
+    def ask_llm(self, messages) -> tuple[str, UsageMetadata]:
         pass
 
     @abstractmethod
