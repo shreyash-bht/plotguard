@@ -50,13 +50,14 @@ class ChatbotService:
             contextualised_user_question,
             top_k
         )
-        ai_response = self._chat_model.chat(contextualised_user_question, relevant_context.context, formatted_chat_history)
+        ai_response, usage_metadata = self._chat_model.chat(contextualised_user_question, relevant_context.context, formatted_chat_history)
 
         self._chat_repository.save_turn(conversation_id, user_question, contextualised_user_question, ai_response)
         elapsed_time = time.perf_counter() - start_time
         logger.debug(f"Time required to process the request : {elapsed_time}")
         if is_send_metadata:
-            chat_metadata = ChatMetadata(used_chunks=relevant_context.retrieved_chunks,
-                                        generation_time_seconds=elapsed_time,
-                                        contextualized_query=contextualised_user_question)
+            chat_metadata = ChatMetadata(contextualized_query=contextualised_user_question, 
+                                        generation_time_seconds=elapsed_time, 
+                                        token_usage=usage_metadata, 
+                                        used_chunks=relevant_context.retrieved_chunks)
         return ai_response, chat_metadata
