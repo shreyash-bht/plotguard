@@ -1,5 +1,12 @@
 from app.embedding.embedding_service import EmbeddingService
 from app.retrieval.retrieval_service import RetrievalService
+from dataclasses import dataclass
+from app.retrieval.retrieval_service import RetrievedChunk
+
+@dataclass
+class RAGResult: 
+    context: str
+    retrieved_chunks: list[RetrievedChunk]
 
 
 class RAGService:
@@ -7,13 +14,13 @@ class RAGService:
         self.embedding_service = embedding_service
         self.retrieval_service = retrieval_service
 
-    def fetch_relevant_chunks(
+    def retrieve_context(
         self,
         content_id: str,
         max_story_order: int,
         question: str,
         top_k: int = 5
-    ) -> str:
+    ) -> RAGResult:
         query_embedding = self.embedding_service.embed_query(question)
         chunks = self.retrieval_service.retrieve(
             content_id=content_id,
@@ -22,10 +29,10 @@ class RAGService:
             top_k=top_k
         )
         if not chunks:
-            return "I couldn't find enough information to answer that."
+            return RAGResult("I couldn't find enough information to  answer that.", [])
 
         context = self._build_context(chunks)
-        return context
+        return RAGResult(context, chunks)
 
     def _build_context(self, chunks) -> str:
         return "\n\n".join(
