@@ -62,7 +62,6 @@ class PostgresChatRepository:
             for row in rows
         ]
 
-
     def save_turn(
         self,
         conversation_id: str,

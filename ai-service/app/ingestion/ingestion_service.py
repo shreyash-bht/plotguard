@@ -1,8 +1,8 @@
 from app.schema.story_unit_ingestion_request import StoryUnitIngestionRequest
 from app.schema.story_unit_ingestion_response import StoryUnitIngestionResponse
-
 from app.chunking.chunking_repository import ChunkingRepository
 from app.chunking.chunking_service import ChunkingService
+
 
 class IngestionService:
     def __init__(self, chunking_repository: ChunkingRepository, chunking_service: ChunkingService):

@@ -1,13 +1,10 @@
 from pydantic import BaseModel, Field
 from app.llm.chat_model import ChatModel
 
+
 class ContextualizedQuery(BaseModel):
-    query: str = Field(
-        description="A standalone version of the user's latest question"
-    )
-    was_contextualized: bool = Field(
-        description="True if conversation history was required to rewrite the question"
-    )
+    query: str = Field(description="A standalone version of the user's latest question")
+    was_contextualized: bool = Field(description="True if conversation history was required to rewrite the question")
 
 
 SYSTEM_PROMPT = """

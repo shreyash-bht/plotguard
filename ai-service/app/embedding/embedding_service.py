@@ -1,5 +1,6 @@
 from langchain_ollama.embeddings import OllamaEmbeddings
 
+
 class EmbeddingService:
     def __init__(self, embedding_model: str):
         self.embedding = OllamaEmbeddings(model=embedding_model)

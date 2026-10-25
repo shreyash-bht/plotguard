@@ -1,9 +1,7 @@
 import threading
 from app.embedding.embedding_service import EmbeddingService
-from app.llm.chat_model import ChatModel
 from app.llm.gemini_chat_model import GeminiChatModel
 from app.llm.ollama_chat_model import OllamaChatModel
-
 from app.retrieval.retrieval_service import RetrievalService
 from app.rag.rag_service import RAGService
 from app.ingestion.ingestion_service import IngestionService
@@ -22,14 +20,14 @@ class ServiceContainer:
         if ServiceContainer._instance is not None:
             raise RuntimeError("Use ServiceContainer.get_service_container() instead")
 
-        self.__embedding_service = EmbeddingService(settings.embedding_model)
-        self.__chat_model = self._create_chat_model(settings)
-        self.__retrieval_service = RetrievalService(settings.database_url)
-        self.__rag_service = RAGService(self.__embedding_service, self.__retrieval_service)
-        self.__ingestion_service = IngestionService(ChunkingRepository(settings.database_url), ChunkingService())
-        self.__chat_repository = PostgresChatRepository(settings.database_url)
-        self.__query_contextualizer = QueryContextualizer(self._create_contextualizer_model(settings))
-        self.__chatbot_service = ChatbotService(self.__query_contextualizer, self.__rag_service, self.__chat_model, self.__chat_repository)
+        self._embedding_service = EmbeddingService(settings.embedding_model)
+        self._chat_model = self._create_chat_model(settings)
+        self._retrieval_service = RetrievalService(settings.database_url)
+        self._rag_service = RAGService(self._embedding_service, self._retrieval_service)
+        self._ingestion_service = IngestionService(ChunkingRepository(settings.database_url), ChunkingService())
+        self._chat_repository = PostgresChatRepository(settings.database_url)
+        self._query_contextualizer = QueryContextualizer(self._create_contextualizer_model(settings))
+        self._chatbot_service = ChatbotService(self._query_contextualizer, self._rag_service, self._chat_model, self._chat_repository)
 
     @classmethod
     def get_service_container(cls, settings: Settings):
@@ -41,25 +39,25 @@ class ServiceContainer:
         return cls._instance
 
     def get_embedding_service(self):
-        return self.__embedding_service
+        return self._embedding_service
 
     def get_chat_model(self):
-        return self.__chat_model
+        return self._chat_model
 
     def get_retrieval_service(self):
-        return self.__retrieval_service
+        return self._retrieval_service
 
     def get_rag_service(self):
-        return self.__rag_service
+        return self._rag_service
 
     def get_ingestion_service(self):
-        return self.__ingestion_service
+        return self._ingestion_service
 
     def get_chat_repository(self):
-        return self.__chat_repository    
+        return self._chat_repository    
 
     def get_chatbot_service(self):
-        return self.__chatbot_service
+        return self._chatbot_service
 
     def _create_chat_model(self, settings: Settings):
         chat_llm_config = settings.chat_llm

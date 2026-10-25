@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import psycopg
 
+
 @dataclass
 class RetrievedChunk:
     chunk_id: str
