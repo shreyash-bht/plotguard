@@ -1,6 +1,5 @@
 from app.embedding.embedding_service import EmbeddingService
 from app.retrieval.retrieval_service import RetrievalService
-
 from evaluation.evaluators.evaluator import Evaluator
 from evaluation.loaders.retrieval_dataset_loader import RetrievalDatasetLoader
 from evaluation.models.retrieval_models import (

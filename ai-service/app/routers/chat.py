@@ -12,6 +12,7 @@ chatbot_service: ChatbotService = container.get_chatbot_service()
 
 router = APIRouter(prefix="/chat")
 
+
 @router.post("")
 def chat(request: ChatRequest) -> ChatResponse:
     ai_response, chat_metadata = chatbot_service.chat(

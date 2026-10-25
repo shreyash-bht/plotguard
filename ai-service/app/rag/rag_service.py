@@ -3,6 +3,7 @@ from app.retrieval.retrieval_service import RetrievalService
 from dataclasses import dataclass
 from app.retrieval.retrieval_service import RetrievedChunk
 
+
 @dataclass
 class RAGResult: 
     context: str

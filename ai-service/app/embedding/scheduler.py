@@ -1,6 +1,5 @@
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
-
 from app.embedding.embedding_worker import EmbeddingWorker
 from app.embedding.embedding_service import EmbeddingService
 
