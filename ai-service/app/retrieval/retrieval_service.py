@@ -1,26 +1,31 @@
 from dataclasses import dataclass
 import psycopg
-
-
-@dataclass
-class RetrievedChunk:
-    chunk_id: str
-    chunk_index: int
-    chunk_text: str
-    story_order: int
-    distance: float
+from app.retrieval.reranker import ChunkReranker
+from app.retrieval.models import RetrievedChunk
 
 
 class RetrievalService:
-    def __init__(self, database_url: str):
+    def __init__(self, database_url: str, chunk_reranker: ChunkReranker):
         self._database_url = database_url
+        self.reranker = chunk_reranker
+
+    def retrieve_and_rerank(
+        self,
+        query: str,
+        content_id: str,
+        max_story_order: int,
+        query_embedding: list[float],
+        top_k: int = 5
+    ) -> list[RetrievedChunk]:
+        retrieved_chunks = self.retrieve(content_id, max_story_order, query_embedding, 20)
+        return self.reranker.rerank(query, retrieved_chunks, top_k)
 
     def retrieve(
         self,
         content_id: str,
         max_story_order: int,
         query_embedding: list[float],
-        top_k: int = 5
+        top_k: int = 20
     ) -> list[RetrievedChunk]:
         with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:

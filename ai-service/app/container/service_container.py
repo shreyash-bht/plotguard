@@ -3,6 +3,7 @@ from app.embedding.embedding_service import EmbeddingService
 from app.llm.gemini_chat_model import GeminiChatModel
 from app.llm.ollama_chat_model import OllamaChatModel
 from app.retrieval.retrieval_service import RetrievalService
+from app.retrieval.reranker import ChunkReranker
 from app.rag.rag_service import RAGService
 from app.ingestion.ingestion_service import IngestionService
 from app.chunking.chunking_repository import ChunkingRepository
@@ -22,7 +23,8 @@ class ServiceContainer:
 
         self._embedding_service = EmbeddingService(settings.embedding_model)
         self._chat_model = self._create_chat_model(settings)
-        self._retrieval_service = RetrievalService(settings.database_url)
+        self._chunk_reranker = ChunkReranker()
+        self._retrieval_service = RetrievalService(settings.database_url, self._chunk_reranker)
         self._rag_service = RAGService(self._embedding_service, self._retrieval_service)
         self._ingestion_service = IngestionService(ChunkingRepository(settings.database_url), ChunkingService())
         self._chat_repository = PostgresChatRepository(settings.database_url)
@@ -54,7 +56,7 @@ class ServiceContainer:
         return self._ingestion_service
 
     def get_chat_repository(self):
-        return self._chat_repository    
+        return self._chat_repository
 
     def get_chatbot_service(self):
         return self._chatbot_service

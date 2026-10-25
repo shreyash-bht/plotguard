@@ -19,16 +19,15 @@ class RAGService:
         self,
         content_id: str,
         max_story_order: int,
-        question: str,
+        query: str,
+        enable_reranking: bool, 
         top_k: int = 5
     ) -> RAGResult:
-        query_embedding = self.embedding_service.embed_query(question)
-        chunks = self.retrieval_service.retrieve(
-            content_id=content_id,
-            max_story_order=max_story_order,
-            query_embedding=query_embedding,
-            top_k=top_k
-        )
+        query_embedding = self.embedding_service.embed_query(query)
+        if enable_reranking: 
+            chunks = self.retrieval_service.retrieve_and_rerank(query, content_id, max_story_order, query_embedding, top_k)
+        else:
+            chunks = self.retrieval_service.retrieve(content_id, max_story_order, query_embedding, top_k)
         if not chunks:
             return RAGResult("I couldn't find enough information to  answer that.", [])
 
