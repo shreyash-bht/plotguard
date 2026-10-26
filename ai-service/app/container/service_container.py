@@ -24,7 +24,7 @@ class ServiceContainer:
         self._embedding_service = EmbeddingService(settings.embedding_model)
         self._chat_model = self._create_chat_model(settings)
         self._chunk_reranker = ChunkReranker()
-        self._retrieval_service = RetrievalService(settings.database_url, self._chunk_reranker)
+        self._retrieval_service = RetrievalService(settings.database_url, self._chunk_reranker, settings.enable_reranking)
         self._rag_service = RAGService(self._embedding_service, self._retrieval_service)
         self._ingestion_service = IngestionService(ChunkingRepository(settings.database_url), ChunkingService())
         self._chat_repository = PostgresChatRepository(settings.database_url)

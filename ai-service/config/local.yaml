@@ -27,3 +27,6 @@ contextualizer:
 
   ollama:
     model: ${OLLAMA_CONTEXTUALIZER_MODEL:qwen2.5:1.5b}
+
+retrieval:
+  enable_reranking: ${ENABLE_RERANKING:true}

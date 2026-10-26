@@ -5,20 +5,26 @@ from app.retrieval.models import RetrievedChunk
 
 
 class RetrievalService:
-    def __init__(self, database_url: str, chunk_reranker: ChunkReranker):
+    def __init__(self, database_url: str, chunk_reranker: ChunkReranker, enable_reranking: bool):
         self._database_url = database_url
         self.reranker = chunk_reranker
+        self._enable_reranking = enable_reranking
 
-    def retrieve_and_rerank(
+    def retrieve_relevant_chunks(
         self,
         query: str,
         content_id: str,
         max_story_order: int,
         query_embedding: list[float],
+        enable_reranking: bool | None = None,
         top_k: int = 5
-    ) -> list[RetrievedChunk]:
-        retrieved_chunks = self.retrieve(content_id, max_story_order, query_embedding, 20)
-        return self.reranker.rerank(query, retrieved_chunks, top_k)
+    )-> list[RetrievedChunk]:
+        should_rerank = self._enable_reranking if enable_reranking is None else enable_reranking
+        print(f"hey config {self._enable_reranking} and enable {enable_reranking}")
+        if should_rerank:
+            retrieved_chunks = self.retrieve(content_id, max_story_order, query_embedding, 20)
+            return self.reranker.rerank(query, retrieved_chunks, top_k)
+        return self.retrieve(content_id, max_story_order, query_embedding, top_k)
 
     def retrieve(
         self,
