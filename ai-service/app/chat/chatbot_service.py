@@ -36,6 +36,7 @@ class ChatbotService:
         max_story_order: int,
         user_question: str,
         is_send_metadata: bool,
+        enable_reranking: bool,
         top_k: int = 5
     ) -> tuple[str, ChatMetadata | None]:
         chat_metadata = None
@@ -48,6 +49,7 @@ class ChatbotService:
             content_id,
             max_story_order,
             contextualised_user_question,
+            enable_reranking, 
             top_k
         )
         ai_response, usage_metadata = self._chat_model.chat(contextualised_user_question, relevant_context.context, formatted_chat_history)
