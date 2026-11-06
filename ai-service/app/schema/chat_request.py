@@ -7,3 +7,4 @@ class ChatRequest(BaseModel):
     max_story_order: int = Field(ge=0)
     user_question: str = Field(min_length=1)
     is_send_metadata: bool = False
+    enable_reranking: bool = None

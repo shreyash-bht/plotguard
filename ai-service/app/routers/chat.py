@@ -20,7 +20,8 @@ def chat(request: ChatRequest) -> ChatResponse:
         request.content_id,
         request.max_story_order,
         request.user_question,
-        request.is_send_metadata
+        request.is_send_metadata,
+        request.enable_reranking
     )
 
     return ChatResponse(answer=ai_response, chat_metadata=chat_metadata)

@@ -29,6 +29,8 @@ class Settings:
     chat_llm: dict
     contextualizer: dict
 
+    enable_reranking: bool
+
 
 _ENV_PATTERN = re.compile(
     r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::([^}]*))?\}"
@@ -115,7 +117,8 @@ def _build_settings(config: dict) -> Settings:
         ),
 
         chat_llm=config["chat_llm"],
-        contextualizer=config["contextualizer"]
+        contextualizer=config["contextualizer"],
+        enable_reranking=bool(config["retrieval"]["enable_reranking"])
     )
 
 
