@@ -60,12 +60,9 @@ Who is Lester?
 
 The conversation history is only used to resolve references.
 Do not use it to answer the question.
+<latest_user_question>{question}</latest_user_question>
 
-Conversation history:
-{chat_history}
-
-Latest user question:
-{question}
+<conversation_history>{chat_history}</conversation_history>
 """
 
 

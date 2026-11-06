@@ -14,7 +14,7 @@ provided with the relevant facts, AND YOU HAVE TO USE ONLY THOSE FACTS TO ANSWER
 4. If the facts does not contain enough information to answer the question, clearly say that there is not enough information available. 
 Keep the answer concise and clear.
 5. Only Answer the latest query asked by the user (Directly answer no need to mention you are using provided facts only). 
-Retrieved facts : {context}
+<relevant_facts>{context}</relevant_facts>
 """
 
 
