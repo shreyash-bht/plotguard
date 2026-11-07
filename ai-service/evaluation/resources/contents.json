@@ -1,0 +1,17 @@
+[
+    {
+        "sr_no": 1,
+        "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05",
+        "title": "Wednesday",
+        "description": "",
+        "content_type": "TV_SHOW",
+        "seasons": [
+            {
+                "season_id": "b12186f9-dd4b-49b8-9e5c-773513390f05",
+                "season_number": 1,
+                "title": "s1",
+                "description": ""
+            }
+        ]
+    }
+]

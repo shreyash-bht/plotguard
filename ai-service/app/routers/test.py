@@ -21,4 +21,7 @@ chat_repository: PostgresChatRepository = container.get_chat_repository()
 @router.post("/conversations")
 def create_conversation(request: ConversationRequest):
     response = chat_repository.create_conversation(request.user_id, request.content_id, request.max_story_order)
-    return ConversationResponse(response.user_id, response.content_id, response.max_story_order, response.conversation_id)
+    return ConversationResponse(user_id=str(response.user_id), 
+                                content_id=str(response.content_id), 
+                                max_story_order=response.max_story_order, 
+                                conversation_id=str(response.conversation_id))

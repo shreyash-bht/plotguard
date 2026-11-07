@@ -25,7 +25,7 @@ class ChunkingRepository:
                             %s,
                             'PENDING'
                         )
-                        """,
+                        ON CONFLICT(story_unit_id, chunk_index) DO NOTHING""",
                         (
                             story_unit_id,
                             chunk_index,
