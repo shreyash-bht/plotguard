@@ -9,3 +9,5 @@ transformers
 fastapi[standard]
 
 langchain-google-genai
+
+python-frontmatter

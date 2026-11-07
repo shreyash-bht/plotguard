@@ -12,7 +12,7 @@ class EmbeddingWorker:
         self._database_url = database_url
         self.embedding_service = embedding_service
 
-    def process(self,batch_size: int = 20):
+    def process(self,batch_size: int = 5):
         chunks = self._get_pending_chunks(batch_size)
         if not chunks:
             logger.info("No pending chunks.")

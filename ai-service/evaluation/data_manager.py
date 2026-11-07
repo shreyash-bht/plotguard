@@ -20,7 +20,7 @@ class DataManager:
     def _insert_contents_data(self): 
         with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as curr:
-                query = "INSERT INTO contents(content_id, title, content_type) values (%s, %s, %s)"
+                query = "INSERT INTO contents(content_id, title, content_type) values (%s, %s, %s) ON CONFLICT(content_id) DO NOTHING"
                 data = loader.get_contents_data()
                 formatted_data = [(d.content_id, d.title, d.content_type) for d in data]
                 curr.executemany(query, formatted_data,)
@@ -28,7 +28,7 @@ class DataManager:
     def _insert_seasons_data(self):
         with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as curr:
-                query = "INSERT INTO seasons(season_id, content_id, season_number) values (%s, %s, %s)"
+                query = "INSERT INTO seasons(season_id, content_id, season_number) values (%s, %s, %s) ON CONFLICT(season_id) DO NOTHING"
                 data = loader.get_seasons_data()
                 formatted_data = [(d.season_id, d.content_id, d.season_number) for d in data]
                 curr.executemany(query, formatted_data,)
@@ -36,10 +36,10 @@ class DataManager:
     def _insert_story_units_meta_data(self):
         with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as curr:
-                query = "INSERT INTO story_units(story_unit_id, content_id, season_id, unit_type, title, story_order)" \
-                " values (%s, %s, %s, %s, %s, %s)"
+                query = "INSERT INTO story_units(story_unit_id, content_id, season_id, unit_type, unit_number, title, story_order)" \
+                " values (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT(story_unit_id) DO NOTHING"
                 data = loader.get_story_units_data()
-                formatted_data = [(d.story_unit_id, d.content_id, d.season_id, d.unit_type, d.title, d.story_order) for d in data]
+                formatted_data = [(d.story_unit_id, d.content_id, d.season_id, d.unit_type, d.unit_number, d.title, d.story_order) for d in data]
                 curr.executemany(query, formatted_data,)
 
 
