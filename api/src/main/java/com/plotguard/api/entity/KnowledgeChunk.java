@@ -19,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class KnowledgeChunk {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name= "chunk_id")
     private UUID chunkId;
 

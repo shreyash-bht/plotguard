@@ -20,7 +20,7 @@ import java.util.UUID;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name= "user_id")
+    @Column(name = "user_id", nullable = false, updatable = false)
     private UUID userId;
 
     @Column(name= "username")
@@ -31,6 +31,9 @@ public class User {
 
     @Column(name= "password_hash")
     private String passwordHash;
+
+    @Column(name = "is_temp_user", nullable = false)
+    private boolean isTempUser;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

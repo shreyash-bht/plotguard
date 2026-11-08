@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Season {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name= "season_id")
     private UUID seasonId;
 

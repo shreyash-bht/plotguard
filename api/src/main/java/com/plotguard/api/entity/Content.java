@@ -20,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Content {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name= "content_id")
     private UUID contentId;
 
