@@ -1,8 +1,10 @@
 package com.plotguard.api.login;
 
+import com.plotguard.api.dto.NewTempUserDto;
 import com.plotguard.api.dto.NewUserDto;
 import com.plotguard.api.entity.Role;
 import com.plotguard.api.entity.User;
+import com.plotguard.api.login.service.UsernameGeneratorService;
 import com.plotguard.api.repository.RoleRepository;
 import com.plotguard.api.repository.UserRepository;
 import com.plotguard.api.security.JWTService;
@@ -39,6 +41,9 @@ public class AuthAPI {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private UsernameGeneratorService usernameGeneratorService;
+
     private static final Integer ROLE_ADMIN_ID = 1;
     private static final Integer ROLE_MODERATOR_ID = 2;
     private static final Integer ROLE_USER_ID = 3;
@@ -49,11 +54,25 @@ public class AuthAPI {
         User newUser = User.builder()
                 .username(newUserDto.getUsername())
                 .emailId(newUserDto.getEmailId())
+                .isTempUser(Boolean.FALSE)
+                .status("active")
                 .passwordHash(passwordEncoder.encode(newUserDto.getPassword()))
                 .build();
         Optional<Role> roles = roleRepository.findById(ROLE_USER_ID);
         newUser.setRoles(Set.of(roles.get()));
         userRepository.save(newUser);
+    }
+
+    @PostMapping("/guest-register")
+    public User addNewTempUser(@RequestBody NewTempUserDto newTempUserDto) {
+        User newUser = User.builder()
+                .username(usernameGeneratorService.generateUsername())
+                .isTempUser(Boolean.TRUE)
+                .status("active")
+                .build();
+        Optional<Role> roles = roleRepository.findById(ROLE_USER_ID);
+        newUser.setRoles(Set.of(roles.get()));
+        return userRepository.save(newUser);
     }
 
     @PostMapping("/login")

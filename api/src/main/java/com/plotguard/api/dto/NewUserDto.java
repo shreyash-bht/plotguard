@@ -20,10 +20,6 @@ public class NewUserDto {
     @NonNull
     private String username;
 
-    @JsonProperty("display_name")
-    @NonNull
-    private String displayName;
-
     @JsonProperty("email_id")
     @NonNull
     private String emailId;
