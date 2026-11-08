@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surfaces */
+  --color-ink: #070709;
+  --color-panel: #0c0c11;
+  --color-raise: #12121a;
+  --color-hover: #17171f;
+
+  /* Lines */
+  --color-line: #1b1b23;
+  --color-line-strong: #26262f;
+
+  /* Text */
+  --color-mute: #8f8f9c;
+  --color-faint: #7b7b87;
+
+  /* Accent (violet-indigo) */
+  --color-accent: #7c6cf6;
+  --color-accent-hover: #8f81f8;
+  --color-accent-muted: #4b3fc4;
+  /* Deeper shade for white-on-violet fills (4.5:1+ contrast) */
+  --color-accent-strong: #5f4fd8;
+  --color-accent-strong-hover: #7162e5;
+
+  /* Status */
+  --color-danger: #f47174;
+  --color-ok: #4ad48b;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background: var(--color-ink);
+  color: #f2f2f5;
+}
+
+::selection {
+  background: rgba(124, 108, 246, 0.35);
+}
+
+/* Slim, dark scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #26262f transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #26262f;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Reusable primitives kept as CSS for layout-wide use */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

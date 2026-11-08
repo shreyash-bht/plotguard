@@ -1,0 +1,9 @@
+[
+    {
+        "query_id": "wednesday_query_001",
+        "query": "",
+        "expected_chunks": [],
+        "expected_episodes": ["e1", "e"],
+        "type": "factual"
+    }
+]
