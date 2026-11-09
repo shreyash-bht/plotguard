@@ -1,154 +1,60 @@
 # PlotGuard
 
-## Summary
+Spoiler-safe AI chatbot for anime and TV shows. Ask questions about a show, and the AI will only ever know what you've watched up to.
 
-PlotGuard is a spoiler-safe AI chatbot for anime.
+## Why
 
-It allows users to ask questions about an anime while restricting the AI's knowledge to the user's current viewing progress.
+An AI trained on a show's full story will happily spoil you. PlotGuard ties every piece of knowledge to the episode it belongs to and uses your **viewing progress** as a hard boundary at retrieval time — answering questions only from episodes you've finished.
 
-The project is built as a two-service application:
-
-* **Spring Boot API** — handles the core application, users, anime data, episodes, authentication, and other backend functionality.
-* **FastAPI AI Service** — handles query contextualisation, embeddings, retrieval, and LLM-based response generation.
-
-PlotGuard uses a Retrieval-Augmented Generation (RAG) pipeline to retrieve relevant information from the anime's available content before generating a response.
-
-A key part of the system is the **episode-level spoiler boundary**. Content from episodes beyond the user's viewing progress is excluded from retrieval.
-
-## Use Case
-
-A common problem with AI chatbots is that they know the entire story of an anime.
-
-For example, if a user has only watched up to Episode 20, asking:
-
-> "Why did this character do that?"
-
-could result in an answer containing information from later episodes.
-
-PlotGuard addresses this by associating knowledge with specific story units and enforcing the user's viewing boundary during retrieval.
-
-Example:
+## How it works
 
 ```text
-User has watched: Episode 20
-
-Question:
-"Why did Eren do that?"
-
-        ↓
-
-Query Contextualisation
-
-        ↓
-
-Retrieval
-Only content from Episode 20 or earlier
-
-        ↓
-
-Relevant Context
-
-        ↓
-
-LLM
-
-        ↓
-
-Spoiler-safe answer
+Question ("Why did Eren do that?")
+    ↓
+Query contextualisation          ← follow-ups ("What about his mother?") are
+    ↓                              rewritten into standalone queries
+Embedding + vector retrieval     ← only story units you've watched reach
+    ↓                              the context window
+LLM → spoiler-safe answer
 ```
 
-The system is also designed for multi-turn conversations, where users can ask follow-up questions such as:
+## Services
+
+| Module | Stack | Port | Role |
+|---|---|---|---|
+| `frontend/` | Next.js (React, TypeScript) | 3000 | Chat UI, guest sessions, spoiler-boundary picker; proxies both backends |
+| `api/` | Spring Boot (Java, JPA, Flyway, JWT) | 8080 | Users, auth, content/seasons/episodes, conversations + messages |
+| `ai-service/` | FastAPI (LangChain, PostgreSQL/pgvector) | 8000 | RAG pipeline: contextualisation, embeddings, retrieval, LLM |
+
+Both backend services share a PostgreSQL database. The AI service persists every turn (question + answer) to the same `messages` table the core API reads, so chat history survives refreshes and devices.
+
+## Knowledge structure
 
 ```text
-User: Who was Eren's father?
-
-User: What about his mother?
-
-User: Why did he do that?
-```
-
-The query contextualisation layer converts follow-up questions into standalone queries that can be used effectively for retrieval.
-
-## Structure
-
-The project is divided into two main services:
-
-```text
-PlotGuard
-│
-├── api/
-│   └── Spring Boot
-│       ├── Authentication
-│       ├── Users
-│       ├── Anime / Content
-│       ├── Seasons
-│       ├── Story Units
-│       └── Core APIs
-│
-└── ai/
-    └── FastAPI
-        ├── Query Contextualisation
-        ├── Embeddings
-        ├── Vector Retrieval
-        ├── RAG
-        └── LLM Integration
-```
-
-### Core API
-
-The Spring Boot service manages the application's core domain and APIs.
-
-Technologies currently used include:
-
-* Java
-* Spring Boot
-* Spring Data JPA
-* Spring Security
-* PostgreSQL
-* Flyway
-* JWT
-
-### AI Service
-
-The FastAPI service is responsible for AI-related operations.
-
-The current pipeline is:
-
-```text
-User Query
-    ↓
-Query Contextualisation
-    ↓
-Embedding
-    ↓
-Vector Retrieval
-    ↓
-Relevant Knowledge
-    ↓
-LLM
-    ↓
-Response
-```
-
-The AI service is designed to work independently from the core Spring Boot application so that AI-related components can evolve separately.
-
-### Knowledge Structure
-
-Anime information is organised around story units such as episodes.
-
-```text
-Content
+Content (show)
   └── Season
-       └── Story Unit / Episode
-            └── Knowledge Chunks
+       └── Story Unit / Episode     ← spoiler boundary unit
+            └── Knowledge Chunks    ← text used for semantic retrieval
 ```
 
-Knowledge chunks contain the information used for semantic retrieval.
+Each chunk is tagged with its story unit's global story order, which lets retrieval enforce the user's boundary per question.
 
-Each chunk is associated with its corresponding story unit, allowing the retrieval layer to enforce the user's viewing boundary.
+## Running locally
 
-### Current Development
+Requirements: PostgreSQL, Java 21, Python 3.12 (or Docker), Node.js, an Ollama host for embeddings, and a Gemini API key for the AI service.
 
-PlotGuard is currently under active development.
+```bash
+# 1. Core API (Flyway migrates the schema on boot)
+cd api && ./gradlew bootRun
 
-The architecture and retrieval pipeline are expected to evolve as additional retrieval, caching, evaluation, and AI capabilities are added.
+# 2. AI service (configure config/local.yaml + .env first)
+cd ai-service && pip install -r requirements.txt
+uvicorn app.main:app --port 8000
+
+# 3. Frontend
+cd frontend && npm install && npm run dev   # → http://localhost:3000
+```
+
+## Status
+
+Under active development. The retrieval pipeline, evaluation, and AI capabilities are still evolving.
