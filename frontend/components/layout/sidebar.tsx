@@ -4,6 +4,7 @@ import { MessageSquarePlus, Settings, Shield } from "lucide-react";
 import Link from "next/link";
 
 import { SidebarNav } from "@/components/layout/sidebar-nav";
+import { SidebarConversations } from "@/components/layout/sidebar-conversations";
 import { SidebarUser } from "@/components/layout/sidebar-user";
 import { useSessionStore } from "@/stores/session";
 
@@ -47,6 +48,8 @@ export function Sidebar({ onOpenSettings, onNavigate }: SidebarProps) {
       </div>
 
       <SidebarNav onNavigate={onNavigate} />
+
+      <SidebarConversations onNavigate={onNavigate} />
 
       <div className="border-t border-line px-3 py-3">
         <button

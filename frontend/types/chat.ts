@@ -1,20 +1,5 @@
 /** Exact AI-service chat contracts (FastAPI, root_path /api/ai). */
 
-/** Request body of `POST /test/conversations`. */
-export interface CreateConversationRequest {
-  user_id: string;
-  content_id: string;
-  max_story_order: number;
-}
-
-/** Response of `POST /test/conversations`. */
-export interface CreateConversationResponse {
-  user_id: string;
-  content_id: string;
-  max_story_order: number;
-  conversation_id: string;
-}
-
 /** Request body of `POST /chat`. */
 export interface ChatRequest {
   conversation_id: string;
