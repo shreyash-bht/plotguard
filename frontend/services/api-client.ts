@@ -68,6 +68,7 @@ async function request<T>(base: string, path: string, init?: RequestInit): Promi
 export interface ApiClient {
   get<T>(path: string, signal?: AbortSignal): Promise<T>;
   post<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T>;
+  patch<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T>;
 }
 
 function createClient(base: string): ApiClient {
@@ -76,6 +77,12 @@ function createClient(base: string): ApiClient {
     post: (path, body, signal) =>
       request(base, path, {
         method: "POST",
+        body: JSON.stringify(body ?? {}),
+        signal,
+      }),
+    patch: (path, body, signal) =>
+      request(base, path, {
+        method: "PATCH",
         body: JSON.stringify(body ?? {}),
         signal,
       }),

@@ -19,10 +19,10 @@ chat_llm:
     model: ${OLLAMA_CHAT_LLM_MODEL:qwen2.5:3b}
 
 contextualizer:
-  provider: ${CONTEXTUALIZER_PROVIDER:ollama}
+  provider: ${CONTEXTUALIZER_PROVIDER:gemini}
 
   gemini:
-    model: ${GEMINI_LLM_MODEL:gemini-3.6-flash-lite}
+    model: ${GEMINI_LLM_MODEL:gemini-3.5-flash-lite}
     api_key: ${GEMINI_API_KEY}
 
   ollama:

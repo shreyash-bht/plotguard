@@ -18,7 +18,7 @@ import {
   type EpisodeGroup,
 } from "@/lib/episodes";
 import { contentTypeLabel } from "@/lib/format";
-import { createConversation } from "@/services/chat";
+import { createConversation } from "@/services/conversations";
 import { ApiError } from "@/services/api-client";
 import {
   getContent,
@@ -91,15 +91,15 @@ export function SelectFlow({ initialShowId }: { initialShowId?: string }) {  con
         max_story_order: selected.storyOrder ?? selected.unitNumber,
       });
       useConversationStore.getState().save({
-        conversation_id: conversation.conversation_id,
+        conversation_id: conversation.conversationId,
         content_id: content.contentId,
-        max_story_order: conversation.max_story_order,
+        max_story_order: conversation.maxStoryOrder,
         showTitle: content.title,
         boundaryLabel: episodeShortLabel(selected, selectedSeason),
         boundaryLongLabel: episodeLongLabel(selected, selectedSeason),
         lastActiveAt: new Date().toISOString(),
       });
-      router.push(`/chat/${conversation.conversation_id}`);
+      router.push(`/chat/${conversation.conversationId}`);
     } catch (err) {
       setCreateError(
         err instanceof ApiError

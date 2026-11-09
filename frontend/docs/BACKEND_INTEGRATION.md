@@ -56,9 +56,25 @@ Facts verified directly from source code. The frontend must follow these contrac
   Spring's default body `{ timestamp, status: 500, error, path }`. Treat non-2xx as failure
   and surface a generic message.
 
-### Data layer note
-- `conversations` and `messages` tables exist only in Flyway migrations (V10/V11).
-  **No Java entities/controllers serve them yet.**
+### Conversations / messages (implemented; `ConversationApi` + `MessageApi`)
+- `POST /api/conversations` request `{ user_id, content_id, max_story_order }` →
+  serialized `Conversation` entity (**camelCase, DB-generated id**):
+  `{ conversationId, userId, contentId, maxStoryOrder, createdAt, updatedAt }`
+  - Validating: unknown user/content → 500 (EntityNotFoundException; no ControllerAdvice).
+  - `conversation_id` must be omitted (rejected if supplied).
+- `GET /api/conversations/user/{userId}` → `Conversation[]`, most recently
+  `updatedAt` first (note: `updatedAt` only moves on a boundary PATCH — see gaps).
+- `GET /api/conversations/{conversationId}` → single `Conversation`.
+- `PATCH /api/conversations/{conversationId}` request `{ user_id, max_story_order }` →
+  updated `Conversation`; ownership-checked by user.
+- `GET /api/conversations/{conversationId}/messages?user_id={userId}` →
+  `Message[]` chronological (`createdAt` asc), ownership-checked:
+  `{ messageId, conversationId, role: "user"|"assistant", originalContent,
+     contextualizedContent, createdAt, updatedAt }`.
+- `POST .../messages` writes turns (role accepted so the AI service can persist
+  assistant turns) — **not used by the frontend**, which only reads history.
+  The frontend must NOT write turns: the AI service already persists both roles
+  of each `/chat` exchange into the same shared `messages` table.
 
 ## AI service (FastAPI, :8000, root_path `/api/ai`)
 
@@ -84,8 +100,9 @@ Facts verified directly from source code. The frontend must follow these contrac
     `contextualized_query`, `generation_time_seconds`, `token_usage`, `used_chunks[]`.
 - `POST /test/conversations` → `{ conversation_id, user_id, content_id, max_story_order }`
   Request: `{ user_id, content_id, max_story_order }`.
-  - The router header says these are "apis that needs to be exposed by core service, but
-    are not implemented yet" — **this is currently the ONLY way to create a conversation**.
+  - **Deprecated for the frontend** — now creates conversations via the core API
+    (`POST /api/core/conversations`, same shared database). The endpoint remains
+    test/evaluation-only.
 - `POST /story-unit-data` + `GET /story-unit-data/{id}` — knowledge ingestion (admin, not frontend).
 - No auth checks of any kind.
 
@@ -94,8 +111,10 @@ Facts verified directly from source code. The frontend must follow these contrac
 | Gap in backend | Frontend decision |
 |---|---|
 | No artwork/poster field on `Content` | Render generated placeholder artwork (title initial + deterministic gradient). Not fake data, just an image-less UI state. |
-| No conversation-list or message-history endpoints | Sidebar "recent conversations" is client-persisted (per guest, in storage). Reopening a conversation resumes context server-side, but older messages cannot be re-rendered after a refresh — shown as a notice, pending a backend API. |
+| Conversation metadata carries no display titles/labels on the server | Local display cache (per guest, in storage) holds `showTitle`/boundary labels; the conversation index itself is server-hydrated (`GET /api/conversations/user/{userId}`). |
+| Sidebar conversations | Server list merged with the local display cache; titles for conversations created on other devices are fetched on demand (`GET /api/contents/{id}`). |
 | Guest registration returns no usable token | Guest user (id + username) is persisted client-side and reused; no Authorization header is sent. |
-| `POST /test/conversations` is the only conversation create path | Use it, per the router's own comment marking it as the pending core API. |
+| Conversations are now created via the core API | `POST /api/core/conversations` replaced the temporary AI-service `/test/conversations` workaround. |
 | No streaming chat endpoint | Show an active "thinking" indicator; render the full answer when it arrives. |
 | Errors = 500 with default Spring body | Global fetch wrapper normalizes errors into typed failures for UI. |
+| `conversations.updated_at` only moves on boundary PATCH | Sidebar "recent" ordering reflects last boundary change, not last message, until the record's timestamp is bumped on activity. |

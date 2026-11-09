@@ -13,8 +13,10 @@ import {
   episodeLongLabel,
 } from "@/lib/episodes";
 import { listSeasons, listStoryUnits } from "@/services/content";
+import { patchConversationBoundary } from "@/services/conversations";
 import { ApiError } from "@/services/api-client";
 import { useConversationStore } from "@/stores/conversations";
+import { useSessionStore } from "@/stores/session";
 import type { Season, StoryUnit } from "@/types/content";
 
 export interface BoundaryModalProps {
@@ -30,12 +32,15 @@ export interface BoundaryModalProps {
 export function BoundaryModal({ open, onClose, conversationId }: BoundaryModalProps) {
   const save = useConversationStore((s) => s.save);
   const conversation = useConversationStore((s) => s.map[conversationId]);
+  const user = useSessionStore((s) => s.user);
 
   const [storyUnits, setStoryUnits] = useState<StoryUnit[] | null>(null);
   const [seasons, setSeasons] = useState<Season[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<StoryUnit | null>(null);
   const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [patchError, setPatchError] = useState<string | null>(null);
 
   const load = useMemo(
     () => async (contentId: string, currentMaxOrder: number | undefined, signal: AbortSignal) => {
@@ -83,12 +88,15 @@ export function BoundaryModal({ open, onClose, conversationId }: BoundaryModalPr
 
   if (!conversation) return null;
 
-  const confirm = () => {
-    if (!selected) return;
+  const confirm = async () => {
+    if (!selected || !conversation || !user) return;
+    const maxStoryOrder = selected.storyOrder ?? selected.unitNumber;
+    // Optimistic: the per-request boundary governs the next chat call, so the
+    // local update alone makes the change effective immediately.
     save({
       conversation_id: conversation.conversation_id,
       content_id: conversation.content_id,
-      max_story_order: selected.storyOrder ?? selected.unitNumber,
+      max_story_order: maxStoryOrder,
       showTitle: conversation.showTitle,
       boundaryLabel: episodeShortLabel(selected, selectedSeason),
       boundaryLongLabel: episodeLongLabel(selected, selectedSeason),
@@ -96,7 +104,23 @@ export function BoundaryModal({ open, onClose, conversationId }: BoundaryModalPr
       // Boundary moved after messages were exchanged — flag for UI.
       boundaryChanged: true,
     });
-    onClose();
+    setSaving(true);
+    setPatchError(null);
+    try {
+      await patchConversationBoundary(conversation.conversation_id, {
+        user_id: user.userId,
+        max_story_order: maxStoryOrder,
+      });
+      onClose();
+    } catch (err) {
+      setPatchError(
+        err instanceof ApiError
+          ? err.message
+          : "Could not sync the boundary to the server. It still applies to this chat.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const groups = groupStoryUnits(storyUnits ?? [], seasons ?? []);
@@ -140,14 +164,20 @@ export function BoundaryModal({ open, onClose, conversationId }: BoundaryModalPr
         )}
       </div>
 
-      <div className="mt-4 flex justify-end gap-2">
-        <Button variant="ghost" onClick={onClose}>
+      <div className="mt-4 flex items-center justify-end gap-2">
+        {patchError ? (
+          <p className="mr-auto max-w-56 text-right text-[12px] leading-snug text-danger">
+            {patchError}
+          </p>
+        ) : null}
+        <Button variant="ghost" onClick={onClose} disabled={saving}>
           Cancel
         </Button>
         <Button
           variant="primary"
-          disabled={!selected}
-          onClick={confirm}
+          disabled={!selected || !user}
+          loading={saving}
+          onClick={() => void confirm()}
           size="sm"
           className="h-9 px-3.5 text-[13px]"
         >

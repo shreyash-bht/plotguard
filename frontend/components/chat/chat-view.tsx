@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Shield, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BoundaryModal } from "@/components/chat/boundary-modal";
 import { ChatInput } from "@/components/chat/chat-input";
@@ -11,27 +11,90 @@ import { SuggestedQuestions } from "@/components/chat/suggested-questions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { sendChatMessage } from "@/services/chat";
+import {
+  ensureConversationRef,
+  fetchConversationMessages,
+} from "@/services/conversations";
 import { ApiError } from "@/services/api-client";
 import { useConversationStore } from "@/stores/conversations";
+import { useSessionStore } from "@/stores/session";
 import type { ChatMessage } from "@/types/chat-message";
+import type { CoreMessage } from "@/types/conversation";
 
 function newId(): string {
   if (typeof crypto?.randomUUID === "function") return crypto.randomUUID();
   return `m-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function toChatMessage(server: CoreMessage): ChatMessage {
+  return {
+    id: server.messageId,
+    role: server.role,
+    content: server.originalContent,
+    createdAt: server.createdAt,
+  };
+}
+
 export interface ChatViewProps {
   conversationId: string;
 }
 
+type Bootstrap =
+  | { state: "loading" }
+  | { state: "ready" }
+  | { state: "unavailable" };
+
 export function ChatView({ conversationId }: ChatViewProps) {
   const conversation = useConversationStore((s) => s.map[conversationId]);
+  const user = useSessionStore((s) => s.user);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [bootstrap, setBootstrap] = useState<Bootstrap>({ state: "loading" });
   const [boundaryOpen, setBoundaryOpen] = useState(false);
   /** Preserved so "Retry" can re-send the failed question. */
   const lastFailedQuestion = useRef<string | null>(null);
+
+  // Server hydration: guarantees a local conversation ref (fetching one from
+  // the core API when the conversation was created on another device), then
+  // loads the durable transcript. The AI service persists both turns of every
+  // exchange, so nothing is ever written back client-side.
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    const controller = new AbortController();
+    // Deferred: kicks off async loading outside the effect's synchronous pass
+    // (React lint: no cascading setState in effects).
+    queueMicrotask(() => {
+      void (async () => {
+        try {
+          await ensureConversationRef(conversationId, controller.signal);
+          const serverMessages = await fetchConversationMessages(
+            conversationId,
+            user.userId,
+            controller.signal,
+          );
+          if (!alive) return;
+          setMessages(serverMessages.map(toChatMessage));
+          setBootstrap({ state: "ready" });
+        } catch (error) {
+          if (!alive || controller.signal.aborted) return;
+          if (error instanceof DOMException && error.name === "AbortError") return;
+          // Unknown to the server *and* absent locally — nothing to show.
+          if (!useConversationStore.getState().map[conversationId]) {
+            setBootstrap({ state: "unavailable" });
+          } else {
+            // Stale/offline case: keep the (possibly empty) local transcript.
+            setBootstrap({ state: "ready" });
+          }
+        }
+      })();
+    });
+    return () => {
+      alive = false;
+      controller.abort();
+    };
+  }, [conversationId, user]);
 
   const ask = useCallback(
     async (question: string) => {
@@ -104,21 +167,27 @@ export function ChatView({ conversationId }: ChatViewProps) {
     void ask(question);
   }, [ask]);
 
-  // Only reachable via a locally-registered conversation (no backend listing).
-  if (!conversation) {
+  if (bootstrap.state === "unavailable") {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
         <p className="text-sm font-medium text-zinc-100">
-          This conversation isn&apos;t on this device
+          This conversation doesn&apos;t exist
         </p>
         <p className="max-w-sm text-[13px] leading-relaxed text-faint">
-          PlotGuard keeps the conversation index locally, and the current
-          backend doesn&apos;t provide a way to fetch conversations by user
-          yet. Start a new one below.
+          It isn&apos;t in your session and the server has no conversation with
+          this ID for you. Start a new one below.
         </p>
         <Link href="/select" className="mt-1">
           <Button variant="primary">Start a new conversation</Button>
         </Link>
+      </div>
+    );
+  }
+
+  if (!conversation || bootstrap.state === "loading") {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="size-5 animate-spin rounded-full border-2 border-line border-t-accent" />
       </div>
     );
   }
