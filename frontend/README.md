@@ -1,4 +1,4 @@
-# PlotGuard — Frontend
+# Plotguard AI — Frontend
 
 Spoiler-aware AI chatbot for anime and TV shows. Pick a show, lock the episode
 you've watched, and ask the AI anything — it will never reveal events beyond

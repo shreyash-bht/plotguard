@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PlotGuard — Ask anything. Never get spoiled.",
+  title: "Plotguard AI: Ask anything. Never get spoiled.",
   description:
     "Spoiler-aware AI chatbot for anime and TV shows. Lock your watched episode and discuss the story without ever being spoiled beyond it.",
 };

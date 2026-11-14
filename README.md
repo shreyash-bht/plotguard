@@ -1,10 +1,10 @@
-# PlotGuard
+# Plotguard AI
 
 Spoiler-safe AI chatbot for anime and TV shows. Ask questions about a show, and the AI will only ever know what you've watched up to.
 
 ## Why
 
-An AI trained on a show's full story will happily spoil you. PlotGuard ties every piece of knowledge to the episode it belongs to and uses your **viewing progress** as a hard boundary at retrieval time — answering questions only from episodes you've finished.
+An AI trained on a show's full story will happily spoil you. Plotguard AI ties every piece of knowledge to the episode it belongs to and uses your **viewing progress** as a hard boundary at retrieval time — answering questions only from episodes you've finished.
 
 ## How it works
 

@@ -29,7 +29,9 @@ function newId(): string {
 function toChatMessage(server: CoreMessage): ChatMessage {
   return {
     id: server.messageId,
-    role: server.role,
+    // The core API serializes the MessageRole enum by its Java name
+    // ("USER"/"ASSISTANT"); normalize so MessageList can compare roles.
+    role: server.role.toLowerCase() as ChatMessage["role"],
     content: server.originalContent,
     createdAt: server.createdAt,
   };

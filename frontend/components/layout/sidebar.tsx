@@ -15,7 +15,7 @@ function Logo() {
         <Shield className="size-4 text-accent" strokeWidth={2.2} />
       </span>
       <span className="text-[15px] font-semibold tracking-tight text-zinc-100">
-        PlotGuard
+        Plotguard AI
       </span>
     </Link>
   );

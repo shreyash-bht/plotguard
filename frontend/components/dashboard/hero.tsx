@@ -37,7 +37,7 @@ export function Hero() {
           <span className="text-accent">Zero spoilers.</span>
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-pretty text-[15px] leading-relaxed text-mute">
-          PlotGuard answers anything about your favorite anime and shows using
+          Plotguard AI answers anything about your favorite anime and shows using
           your exact starting point — when you picked an episode as your
           boundary, the AI&apos;s story knowledge ends there.
         </p>
