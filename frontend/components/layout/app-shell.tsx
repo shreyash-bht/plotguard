@@ -83,7 +83,7 @@ function MobileTopBar({
         <span className="flex size-6 items-center justify-center rounded-md bg-accent/15 ring-1 ring-accent/25">
           <Shield className="size-3.5 text-accent" strokeWidth={2.2} />
         </span>
-        <span className="text-sm font-semibold text-zinc-100">PlotGuard</span>
+        <span className="text-sm font-semibold text-zinc-100">Plotguard AI</span>
       </span>
       <span className="ml-auto truncate text-[12px] text-mute">{username ?? ""}</span>
     </div>

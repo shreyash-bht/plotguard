@@ -1,4 +1,4 @@
-# PlotGuard — Backend Integration Notes (Phase 1)
+# Plotguard AI — Backend Integration Notes (Phase 1)
 
 Facts verified directly from source code. The frontend must follow these contracts exactly.
 

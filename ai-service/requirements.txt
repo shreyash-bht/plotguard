@@ -11,3 +11,5 @@ fastapi[standard]
 langchain-google-genai
 
 python-frontmatter
+
+sentence-transformers

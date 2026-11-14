@@ -13,12 +13,16 @@ export interface CoreConversation {
   updatedAt: string;
 }
 
+/** Serialized `MessageRole` enum name, e.g. "USER"/"ASSISTANT" (uppercase). */
+export type CoreMessageRole = "USER" | "ASSISTANT";
+
 /** Element of `GET /api/conversations/{id}/messages` and the AI service's
  * persisted turns (which land in the same database table). */
 export interface CoreMessage {
   messageId: string;
   conversationId: string;
-  role: "user" | "assistant";
+  /** Enum name from the core API ("USER"/"ASSISTANT"); normalize before UI use. */
+  role: CoreMessageRole;
   /** For user turns: the raw question. For assistant turns: the answer. */
   originalContent: string;
   /** User turns only: the LLM-contextualized variant of the question. */
