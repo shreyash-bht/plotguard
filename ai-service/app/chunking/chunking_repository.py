@@ -50,3 +50,18 @@ class ChunkingRepository:
                 )
 
                 return cursor.fetchall()
+
+    def get_chunk_statuses(self, story_unit_id: str) -> list[str]:
+        """Distinct embedding statuses of this story unit's chunks."""
+        with psycopg.connect(self._database_url) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT DISTINCT embedding_status
+                    FROM knowledge_chunks
+                    WHERE story_unit_id = %s
+                    """,
+                    (story_unit_id,)
+                )
+
+                return [row[0] for row in cursor.fetchall()]

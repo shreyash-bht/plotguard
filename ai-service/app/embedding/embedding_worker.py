@@ -11,6 +11,9 @@ class EmbeddingWorker:
     def __init__(self, database_url: str, embedding_service: EmbeddingService):
         self._database_url = database_url
         self.embedding_service = embedding_service
+        # PROCESSING rows older than this are considered crashed batches and
+        # are re-picked (the interval must exceed the scheduler's interval).
+        self._PROCESSING_TIMEOUT_MINUTES = 10
 
     def process(self,batch_size: int = 5):
         chunks = self._get_pending_chunks(batch_size)
@@ -44,11 +47,13 @@ class EmbeddingWorker:
                         chunk_id,
                         chunk_text
                     FROM knowledge_chunks
-                    WHERE embedding_status != 'COMPLETED'
+                    WHERE embedding_status IN ('PENDING', 'FAILED')
+                       OR (embedding_status = 'PROCESSING'
+                           AND updated_at < NOW() - make_interval(mins => %s::int))
                     ORDER BY created_at
                     LIMIT %s
                     """,
-                    (batch_size,)
+                    (self._PROCESSING_TIMEOUT_MINUTES, batch_size,)
                 )
 
                 return cursor.fetchall()
@@ -59,7 +64,8 @@ class EmbeddingWorker:
                 cursor.execute(
                     """
                     UPDATE knowledge_chunks
-                    SET embedding_status = 'PROCESSING'
+                    SET embedding_status = 'PROCESSING',
+                        updated_at = CURRENT_TIMESTAMP
                     WHERE chunk_id = ANY(%s)
                     """,
                     (chunk_ids,)

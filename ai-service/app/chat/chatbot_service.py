@@ -8,6 +8,11 @@ from app.schema.chat_metadata import ChatMetadata
 
 logger = logging.getLogger("ai-app.chatbot")
 
+# Factual answers are capped hard: sharpness *is* the feature here.
+FACTUAL_MAX_TOKENS = 300
+# Social/meta answers; anything longer means the router got it wrong.
+NONE_MAX_TOKENS = 150
+
 
 class ChatbotService:
     def __init__(self, 
@@ -41,25 +46,52 @@ class ChatbotService:
     ) -> tuple[str, ChatMetadata | None]:
         chat_metadata = None
         start_time = time.perf_counter()
+
         chat_history = self._chat_repository.get_chat_history(conversation_id)
         formatted_chat_history = self._format_history(chat_history)
-        contextualised_user_question = self._query_contextualizer.contextualize(user_question, formatted_chat_history)
-        logger.info(f"context added query : {contextualised_user_question}")
-        relevant_context = self._rag_service.retrieve_context(
-            content_id,
-            max_story_order,
-            contextualised_user_question,
-            enable_reranking, 
-            top_k
+        routed = self._query_contextualizer.contextualize(user_question, formatted_chat_history)
+        logger.info(
+            "route: intent=%s confidence=%s scope=%s conversation_id=%s",
+            routed.intent, routed.confidence, routed.episode_scope, conversation_id,
         )
-        ai_response, usage_metadata = self._chat_model.chat(contextualised_user_question, relevant_context.context, formatted_chat_history)
 
-        self._chat_repository.save_turn(conversation_id, user_question, contextualised_user_question, ai_response)
+        usage_metadata = None
+        relevant_context = None
+        if routed.intent == "NONE":
+            # No facts retrieved means nothing can leak: plain friendly mode.
+            ai_response, usage_metadata = self._chat_model.chat(
+                user_question,
+                "",
+                formatted_chat_history,
+                max_tokens=NONE_MAX_TOKENS,
+                mode="none",
+            )
+        else:
+            relevant_context = self._rag_service.retrieve_context(
+                content_id,
+                max_story_order,
+                routed,
+                enable_reranking,
+                top_k
+            )
+            logger.info(
+                "retrieval: intent=%s chunks=%d context_chars=%d",
+                routed.intent, len(relevant_context.retrieved_chunks), len(relevant_context.context),
+            )
+            ai_response, usage_metadata = self._chat_model.chat(
+                routed.query,
+                relevant_context.context,
+                formatted_chat_history,
+                max_tokens=FACTUAL_MAX_TOKENS if routed.intent == "FACTUAL" else None,
+                mode="factual" if routed.intent == "FACTUAL" else "standard",
+            )
+
+        self._chat_repository.save_turn(conversation_id, user_question, routed.query, ai_response)
         elapsed_time = time.perf_counter() - start_time
         logger.debug(f"Time required to process the request : {elapsed_time}")
         if is_send_metadata:
-            chat_metadata = ChatMetadata(contextualized_query=contextualised_user_question, 
+            chat_metadata = ChatMetadata(contextualized_query=routed.query, 
                                         generation_time_seconds=elapsed_time, 
                                         token_usage=usage_metadata, 
-                                        used_chunks=relevant_context.retrieved_chunks)
+                                        used_chunks=relevant_context.retrieved_chunks if relevant_context else [])
         return ai_response, chat_metadata

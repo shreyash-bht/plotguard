@@ -1,7 +1,9 @@
-from dataclasses import dataclass
+import logging
 import psycopg
 from app.retrieval.reranker import ChunkReranker
 from app.retrieval.models import RetrievedChunk
+
+logger = logging.getLogger("ai-app.retrieval")
 
 
 class RetrievalService:
@@ -20,7 +22,6 @@ class RetrievalService:
         top_k: int = 5
     )-> list[RetrievedChunk]:
         should_rerank = self._enable_reranking if enable_reranking is None else enable_reranking
-        print(f"hey config {self._enable_reranking} and enable {enable_reranking}")
         if should_rerank:
             retrieved_chunks = self.retrieve(content_id, max_story_order, query_embedding, 20)
             return self.reranker.rerank(query, retrieved_chunks, top_k)
