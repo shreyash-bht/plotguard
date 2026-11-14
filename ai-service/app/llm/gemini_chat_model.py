@@ -15,8 +15,9 @@ class GeminiChatModel(ChatModel):
             temperature=0.2
         )
 
-    def ask_llm(self, messages) -> tuple[str, UsageMetadata]:
-        response = self.llm.invoke(messages)
+    def ask_llm(self, messages, max_tokens: int | None = None) -> tuple[str, UsageMetadata]:
+        llm = self.llm.bind(max_output_tokens=max_tokens) if max_tokens else self.llm
+        response = llm.invoke(messages)
         return response.content[0]['text'], response.usage_metadata
     
     def with_structured_output(self, output_schema):

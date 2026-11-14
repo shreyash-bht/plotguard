@@ -39,6 +39,6 @@ class ChunkReranker:
         for chunk, score in ranked:
             chunk.rerank_score = float(score)
 
-        return [chunk for chunk, _ in ranked[:5]]        
+        return [chunk for chunk, _ in ranked[:top_k]]
 
        

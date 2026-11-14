@@ -6,23 +6,23 @@ ollama:
 
 embedding:
   model: ${EMBEDDING_MODEL:qwen3-embedding:0.6B}
-  interval_seconds: ${EMBEDDING_INTERVAL_SECONDS:30}
+  interval_seconds: ${EMBEDDING_INTERVAL_SECONDS:120}
 
 chat_llm:
-  provider: ${CHAT_LLM_PROVIDER:gemini}
+  provider: ${CHAT_LLM_PROVIDER:ollama}
 
   gemini:
-    model: ${GEMINI_LLM_MODEL:gemini-3.5-flash-lite}
+    model: ${GEMINI_LLM_MODEL:gemini-3.5-flash}
     api_key: ${GEMINI_API_KEY}
 
   ollama:
-    model: ${OLLAMA_CHAT_LLM_MODEL:qwen2.5:3b}
+    model: ${OLLAMA_CHAT_LLM_MODEL:qwen2.5:1.5b}
 
 contextualizer:
-  provider: ${CONTEXTUALIZER_PROVIDER:gemini}
+  provider: ${CONTEXTUALIZER_PROVIDER:ollama}
 
   gemini:
-    model: ${GEMINI_LLM_MODEL:gemini-3.5-flash-lite}
+    model: ${GEMINI_LLM_MODEL:gemini-3.5-flash}
     api_key: ${GEMINI_API_KEY}
 
   ollama:

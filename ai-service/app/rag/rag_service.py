@@ -2,6 +2,7 @@ from app.embedding.embedding_service import EmbeddingService
 from app.retrieval.retrieval_service import RetrievalService
 from dataclasses import dataclass
 from app.retrieval.retrieval_service import RetrievedChunk
+from app.schema.routed_query import RoutedQuery
 
 
 @dataclass
@@ -19,12 +20,23 @@ class RAGService:
         self,
         content_id: str,
         max_story_order: int,
-        query: str,
+        routed_query: RoutedQuery,
         enable_reranking: bool, 
         top_k: int = 5
     ) -> RAGResult:
-        query_embedding = self.embedding_service.embed_query(query)
-        chunks = self.retrieval_service.retrieve_relevant_chunks(query, content_id, max_story_order, query_embedding, enable_reranking, top_k)
+        # FACTUAL keeps top_k small on purpose: a brief fact needs at most a
+        # couple of chunks, and more context only dilutes a 1-2 sentence answer.
+        if routed_query.intent == "FACTUAL":
+            top_k = min(top_k, 3)
+        query_embedding = self.embedding_service.embed_query(routed_query.query)
+        chunks = self.retrieval_service.retrieve_relevant_chunks(
+            routed_query.query,
+            content_id,
+            max_story_order,
+            query_embedding,
+            enable_reranking=enable_reranking,
+            top_k=top_k,
+        )
         context = self._build_context(chunks)
         return RAGResult(context, chunks)
 

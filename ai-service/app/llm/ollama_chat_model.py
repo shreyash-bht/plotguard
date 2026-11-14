@@ -11,8 +11,9 @@ class OllamaChatModel(ChatModel):
             temperature=0.2
         )
 
-    def ask_llm(self, messages)  -> tuple[str, UsageMetadata]:
-        response = self.llm.invoke(messages)
+    def ask_llm(self, messages, max_tokens: int | None = None) -> tuple[str, UsageMetadata]:
+        llm = self.llm.bind(options={"num_predict": max_tokens}) if max_tokens else self.llm
+        response = llm.invoke(messages)
         return response.content, response.usage_metadata
 
     def with_structured_output(self, output_schema):
